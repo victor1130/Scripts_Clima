@@ -518,12 +518,12 @@ CONVERT <- function(dirFol){
 #Mezclar series provenientes de ambas fuentes (horaria y diaria)
 MIX<-function(dirFol){
   
-  Filesroutes=paste0(dirFol,"PROCESS/02_SERIES_DAILY_to_QC/")
+  Filesroutes=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/")
   FlsOriHr=list.files(Filesroutes, pattern="\\.txt$")#archivos diarios de origen horario
   All.FlsOriHr=lapply(paste0(Filesroutes,FlsOriHr),function(x){read.table(x,sep="\t",header=T,blank.lines.skip=TRUE)})
   nom1=substring(FlsOriHr,1,nchar(FlsOriHr)-15);names(All.FlsOriHr)=nom1
   
-  FilesDlyOr=paste0(dirFol,"SERIES_ORIGINAL/DAILY/")
+  FilesDlyOr=paste0(dirFol,"/SERIES_ORIGINAL/DAILY/")
   FlsOrDly=list.files(FilesDlyOr, pattern="\\.txt$")  #archivos diarios de origen Diario
   All.FlsOrDly=lapply(paste0(FilesDlyOr,FlsOrDly),function(x){read.table(x,sep="\t",header=T,blank.lines.skip=TRUE)})
   nom2=substring(FlsOrDly,1,nchar(FlsOrDly)-4)
@@ -625,7 +625,7 @@ QCDAILY <- function(dirFol){
     nom.files=substring(files,1,nchar(files)-4)        
   }
   
-  Data.all.files <- lapply(paste(ruta,"/",files,sep="",dec="."),function(x){read.table(x,header=T,sep="\t")})
+  Data.all.files <- lapply(paste(ruta,"/",files),function(x){read.table(x,header=T,sep="\t")})
   names(Data.all.files)=nom.files
   
   Data.all.filesNAFree=Data.all.files
