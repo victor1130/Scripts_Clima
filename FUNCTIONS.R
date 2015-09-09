@@ -1,4 +1,4 @@
-## Victor Hugo Pati?o Bravo
+## Victor Hugo Pati?o Bravo2
 ## Version V.02.15
 #Creando carpetas, necesarias para organizar la informacion
 FOLDERS <-function(dirFol){
