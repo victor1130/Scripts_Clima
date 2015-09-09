@@ -528,30 +528,31 @@ MIX<-function(dirFol){
   All.FlsOrDly=lapply(paste0(FilesDlyOr,FlsOrDly),function(x){read.table(x,sep="\t",header=T,blank.lines.skip=TRUE)})
   nom2=substring(FlsOrDly,1,nchar(FlsOrDly)-4)
   
+  
   Esolpos=grep("ESOL",nom2)#Elementos de ESOL de origen diario
   modif=nom2[Esolpos]
+  if(length(modif)>0){
 #Aqui todas las series diarias de ESOL son llevadas a CCM2, para poder efectuar la mezcla  
-  for(i in 1:length(modif)){
-    
-    UNIT=substring(modif[i],nchar(modif[i])-8,nchar(modif[i])-5); UNIT=toupper(UNIT)
-    if(UNIT=="WAM2"){
-      Value=All.FlsOrDly[[Esolpos[i]]]$Value*24*60*60/4.18/10000
-      All.FlsOrDly[[Esolpos[i]]]$Value=Value
-      
-    }else if(UNIT=="MJM2"){
-      Value=All.FlsOrDly[[Esolpos[i]]]$Value*100/4.18
-      All.FlsOrDly[[Esolpos[i]]]$Value=Value
-    }
-    
-    ###En caso de ESOL, la unidad se convierte de la unidad original hasta CCM2. Aqui se cambia el nombre del archivo final
-    ID=substring(modif[i],1,nchar(modif[i])-10)
-    nom=paste0(ID,"_CCM2_ESOL")
-    if(UNIT=="MJM2"||UNIT=="WAM2"){
-      modif[i]=nom
-      nom2[Esolpos[i]]=nom
-    }
+      for(i in 1:length(modif)){
+        UNIT=substring(modif[i],nchar(modif[i])-8,nchar(modif[i])-5); UNIT=toupper(UNIT)
+        if(UNIT=="WAM2"){
+          Value=All.FlsOrDly[[Esolpos[i]]]$Value*24*60*60/4.18/10000
+          All.FlsOrDly[[Esolpos[i]]]$Value=Value
+          
+        }else if(UNIT=="MJM2"){
+          Value=All.FlsOrDly[[Esolpos[i]]]$Value*100/4.18
+          All.FlsOrDly[[Esolpos[i]]]$Value=Value
+        }
+
+        ###En caso de ESOL, la unidad se convierte de la unidad original hasta CCM2. Aqui se cambia el nombre del archivo final
+        ID=substring(modif[i],1,nchar(modif[i])-10)
+        nom=paste0(ID,"_CCM2_ESOL")
+        if(UNIT=="MJM2"||UNIT=="WAM2"){
+          modif[i]=nom
+          nom2[Esolpos[i]]=nom
+        }
+      }
   }
-  
   names(All.FlsOrDly)=nom2
   
   stations=c(nom1,nom2);UniqueNom=unique(stations)#Lista de referencia
