@@ -626,7 +626,7 @@ QCDAILY <- function(dirFol){
     nom.files=substring(files,1,nchar(files)-4)        
   }
   
-  Data.all.files <- lapply(paste(ruta,"/",files),function(x){read.table(x,header=T,sep="\t")})
+  Data.all.files <- lapply(paste0(ruta,files),function(x){read.table(x,header=T,sep="\t")})
   names(Data.all.files)=nom.files
   
   Data.all.filesNAFree=Data.all.files
