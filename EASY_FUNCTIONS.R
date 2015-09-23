@@ -5,7 +5,7 @@
 #Autor: VICTOR HUGO PATIÑO BRAVO
 #v.h.patino@cgiar.org
 #Agosto, 2015
-#Version V.01.15
+#Version V.02.15
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
@@ -23,12 +23,12 @@ library(ggplot2)
 library(RMAWGEN)
 
 #Work directory
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Santander/"
+dirFol    <- "C:/Users/vhpatino/Desktop/CLIMA_PROCESADO/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 #Years of analisys
-YStart    <- 2013 #Star Year for analisys
+YStart    <- 2012 #Star Year for analisys
 YEnd      <- 2015 #End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
@@ -61,7 +61,7 @@ QCHORLY(dirFol)
 CONVERT(dirFol)
 
 #Mix
-MIX(dirFol)
+MIX(dirFol)#Debo corregir...si no hay datos horarios esta funcion no tiene sentido
 
 #Quality Control station daily
 QCDAILY(dirFol)
@@ -90,8 +90,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: DontUse=c(2,4,9)
 #DontUse=c(2,4,9)
-GENERATOR_T_R(dirFol,YStart,YEnd,DontUse=c(2,5,7))
-
+GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse=c(4,7,11,13:16,19,25,26:30))
+#length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
 GEN_ESOL(dirFol)

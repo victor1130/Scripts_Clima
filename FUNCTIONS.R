@@ -606,6 +606,7 @@ MIX<-function(dirFol){
 
 #QC daily
 QCDAILY <- function(dirFol){
+  
   print("Wait a moment please...")
   ###Lectura de los archivos
   ruta=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/") 
@@ -741,6 +742,7 @@ QCDAILY <- function(dirFol){
     }else{
       Dev=sd(na.omit(unlist(Data.all.filesNAFree[[i]]$Value)))
       PROMEDIO=mean(na.omit(unlist(Data.all.filesNAFree[[i]]$Value)))
+      
     }  
     
     Data.all.filesNAFree[[i]]$Out4Desv=NA
@@ -811,7 +813,7 @@ QCDAILY <- function(dirFol){
   #Discard tendra entonces los ID  que se deben quitar
   
   Discard=nom.files[SinDato][grep("TMAX|TMIN",nom.files[SinDato])]
-  Discard=substring(Discard,1,nchar(Discard)-5)
+  Discard=unique(substring(Discard,1,nchar(Discard)-5))#Extraer solo el ID
   
   }else{
     summary2=(as.data.frame(do.call(cbind,summary)))
@@ -840,12 +842,13 @@ QCDAILY <- function(dirFol){
       if(length(Discard)>0){
       DiscarD=grep(Discard,files)
       
+      if(length(DiscarD)!=0){
       grep2 <- function(pattern, x){grep(pattern, x)}
       grep2 <- Vectorize(FUN=grep2, vectorize.args='pattern')
       
       DiscarD=grep2(Discard,files)
       
-      files=files[-DiscarD]
+      files=files[-DiscarD]}
       }
     }
   
