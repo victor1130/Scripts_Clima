@@ -609,7 +609,16 @@ QCDAILY <- function(dirFol){
   
   print("Wait a moment please...")
   ###Lectura de los archivos
-  ruta=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/") 
+  
+  
+  if(length(list.files(paste0(dirFol,"/SERIES_ORIGINAL/HOURLY/")))!=0){ #condicion para verificar si hay archivos horarios
+  
+    ruta=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/") 
+  }else{
+    ruta=paste0(dirFol,"/SERIES_ORIGINAL/DAILY/") 
+  }
+  
+  
   Destino=paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/")
 
   files <- list.files(ruta, pattern="\\.txt$")

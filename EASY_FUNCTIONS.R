@@ -23,13 +23,13 @@ library(ggplot2)
 library(RMAWGEN)
 
 #Work directory
-dirFol    <- "C:/Users/vhpatino/Desktop/CLIMA_PROCESADO/"
+dirFol    <- "C:/Users/vhpatino/Desktop/FranciscoYopal/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 #Years of analisys
-YStart    <- 2012 #Star Year for analisys
-YEnd      <- 2015 #End  Year for analisys
+YStart    <- 2008 #Star Year for analisys
+YEnd      <- 2014 #End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -61,7 +61,7 @@ QCHORLY(dirFol)
 CONVERT(dirFol)
 
 #Mix
-MIX(dirFol)#Debo corregir...si no hay datos horarios esta funcion no tiene sentido
+MIX(dirFol)#Debo corregir...si no hay datos horarios y diarios esta funcion no tiene sentido
 
 #Quality Control station daily
 QCDAILY(dirFol)
@@ -89,8 +89,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: DontUse=c(2,4,9)
-#DontUse=c(2,4,9)
-GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse=c(4,7,11,13:16,19,25,26:30))
+#DontUse=c(4,7,11,13:16,19,25,26:30)
+GENERATOR_T_R(dirFol,YStart,YEnd,DontUse=c(1:3))
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
