@@ -598,8 +598,10 @@ MIX<-function(dirFol){
     }else if(length(rep[[i]])==1 & rep[[i]]>length(All.FlsOriHr)){
       #Si no hay duplicidad de fuente, se debe traer el archivo Diario original a la carpeta de QC diarios
       write.table(All.Files[[rep[[i]][1]]],paste0(Filesroutes,UniqueNom[i],".txt"),sep="\t",row.names=F,quote=F)
-      
+      print(paste0("The station ",UniqueNom[i]," was originally preserved"))
     }
+    #Faltaria la condicion de que si solo existe archivo de origen horario pero no diario se guarde este archivo; 
+    #pero no es necesario porque esos archivos ya se encuentrar en la carpeta deseada
   }
   print("The mix process has finished")
 }
@@ -612,17 +614,13 @@ QCDAILY <- function(dirFol){
   
   
   if(length(list.files(paste0(dirFol,"/SERIES_ORIGINAL/HOURLY/")))!=0){ #condicion para verificar si hay archivos horarios
-  
     ruta=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/") 
   }else{
     ruta=paste0(dirFol,"/SERIES_ORIGINAL/DAILY/") 
   }
   
-  
   Destino=paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/")
-
   files <- list.files(ruta, pattern="\\.txt$")
-  
   TypeOrig=(grep("DailyReady",files))#Aqui identifico si el archivo origen contiene info diaria desde 
   #la Fuente, o fue convertido desde info horaria a info diaria (DailyReady)
   #si TypeOrig es diferente de cero es porque hubo un proceso Horario previo
@@ -793,16 +791,16 @@ QCDAILY <- function(dirFol){
     resul=c(size, Duplicados, round((Duplicados/size)*100,2), Error, round((Error/size)*100,2), Fuera4DEV, NAentrada, round((NAentrada/size)*100,2), ProbDUP, MAYORsalto)
     Tabla.fin=as.data.frame(resul,row.names=c("Datos", "Duplicated", "% duplicated", "Errors", "% errors", "Values out 4 DEV","NA's", "% NA's", "Date duplicated Different values", "Greater Gap"))
     summary[[i]]=Tabla.fin
-    write.csv(Tabla.fin,paste0(Destino,nom.files[i], "_SummaryDaily.csv"))
+    #write.csv(Tabla.fin,paste0(Destino,nom.files[i], "_SummaryDaily.csv"))
     write.table(Serie.diaria[[i]],paste0(Destino,nom.files[i], "_ReadyFillGaps.txt"), sep="\t", row.names=FALSE)
     names(Serie.diaria[[i]])
     png(paste0(Destino,nom.files[i], "_Plotserie.png"), width=600, height=400, units="px")
     plot(Serie.diaria[[i]]$Value~Serie.diaria[[i]]$Date, ylab="Value", xlab="Date", type="l")
     dev.off()
     
-    png(paste0(Destino,nom.files[i], "_Boxplotserie.png"), width=600, height=400, units="px")
-    boxplot(Serie.diaria[[i]]$Value)
-    dev.off()
+#     png(paste0(Destino,nom.files[i], "_Boxplotserie.png"), width=600, height=400, units="px")
+#     boxplot(Serie.diaria[[i]]$Value)
+#     dev.off()
   }
   
   #Identificando elementos NULL de la lista
@@ -829,7 +827,6 @@ QCDAILY <- function(dirFol){
     colnames(summary2)=nom.files; summary2=t(summary2)
   }
   
-  
   write.csv(summary2,paste0(Destino,"TotalSummary.csv"))
   
   
@@ -848,18 +845,21 @@ QCDAILY <- function(dirFol){
   #Si hubo series descartadas en el paso anterior que involucraran a TMAX o TMIN
   #Se descartan aqui tambien
   if(exists("Discard")){
-      if(length(Discard)>0){
+      if(length(Discard)==1){
       DiscarD=grep(Discard,files)
-      
-      if(length(DiscarD)!=0){
-      grep2 <- function(pattern, x){grep(pattern, x)}
-      grep2 <- Vectorize(FUN=grep2, vectorize.args='pattern')
-      
-      DiscarD=grep2(Discard,files)
-      
-      files=files[-DiscarD]}
-      }
+      }else   if(length(DiscarD)>1){
+          grep2 <- function(pattern, x){grep(pattern, x)}
+          grep2 <- Vectorize(FUN=grep2, vectorize.args='pattern')
+          
+          DiscarD=grep2(Discard,files)
+          
+          A2=Filter(function(x){length(x)>0},DiscarD)
+          A3=((unlist(A2)))
+          
+          files=files[-((A3))]
+        }
     }
+    
   
   nom.files<-substring(files,1,nchar(files)-18)
   Datos <- lapply(paste(rutOrigen,"/",files,sep=""),function(x){read.table(x,header=T,sep="\t")})
@@ -890,7 +890,7 @@ QCDAILY <- function(dirFol){
   cant.error=0
   percent=0
   for(i in 1:max(length(TempMax),length(TempMin))){
-    
+
     #Posicion que ocupa la estacion de Tmax entre las estaciones de Tmin  
     pos=grep(IDtmax[i],names(TempMin))
     pos=pos[which.min(nchar(names(TempMin)[pos]))]###Esta condicion surge porque al tener dos estaciones 
@@ -923,7 +923,7 @@ QCDAILY <- function(dirFol){
     
     Station.Unit=data.frame(Dates,newTmax,newTmin)
     colnames(Station.Unit)=c("Date","TMAX","TMIN")
-    write.csv(Station.Unit,paste0(destino,IDtmax[i],"_JoinTxTn.csv"))
+    #write.csv(Station.Unit,paste0(destino,IDtmax[i],"_JoinTxTn.csv"))
     Station.Unit.Error=which(Station.Unit$newTmax<=Station.Unit$newTmin)
     originalTMAX=paste0(substring(nom.files[i],1,nchar(nom.files[i])-4),"TMAX")
     originalTMIN=paste0(substring(nom.files[i],1,nchar(nom.files[i])-4),"TMIN")
