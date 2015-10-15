@@ -1,4 +1,4 @@
-## Victor Hugo Pati?o Bravo2
+## Victor Hugo Patino Bravo2
 ## Version V.02.15
 #Creando carpetas, necesarias para organizar la informacion
 FOLDERS <-function(dirFol){
@@ -66,9 +66,13 @@ QCHORLY <- function(dirFol){
   perc=0
   filmin=paste0(YStart,"-01-01")
   filmax=paste0(YEnd,"-12-31")
-  
+
+  pb <- winProgressBar(title = "Progress bar", min = 0,
+                      max = length(Data.all.files), width = 300)
   for(i in seq_along(Data.all.files)){
-    
+    Sys.sleep(0.1)
+    setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
+  
     Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  
     ProbDUP=FALSE
     
@@ -110,9 +114,9 @@ QCHORLY <- function(dirFol){
     
     if(sum(DUP, na.rm=TRUE)>0){
       ProbDUP=TRUE
-      print(paste0("Warning: There is a problem with duplicated hours in the same day in: ",nom.files[i]))
+      print(paste0("Warning: There is a problem with duplicated hours in the same day in: ",nom.files[i]," but this problem was solved"))
       DUPcsv=HOURDATE[which(DUP==TRUE)]
-      write.csv(DUPcsv, paste0(Filesroutesdestino,nom.files[i], "_Duplicated.csv"))
+      #write.csv(DUPcsv, paste0(Filesroutesdestino,nom.files[i], "_Duplicated.csv"))
       
       #Si hay horas duplicadas en un dia, se corrige el problema usando la mediana para los datos
       Data.all.files.OK[[i]]=aggregate(Data.all.files.OK[[i]],by=list(Data.all.files.OK[[i]]$Hour,Data.all.files.OK[[i]]$Date),median)[-c(1,2)]
@@ -132,33 +136,44 @@ QCHORLY <- function(dirFol){
     diasEst=dim(NUMDATA)[1] ###Dias que hay realmente
     PREMJOUR=cumsum(c(1,(NUMDATA$DIFF[-nrow(NUMDATA)])))
 
+    #Mediana de los tiempos entre registros por dia
     MEDIANES=aggregate(Data.all.files.OK[[i]]$DIFF~Data.all.files.OK[[i]]$Date,Data.all.files.OK[[i]],median)
     Data.all.files.OK[[i]]$DIFF[PREMJOUR]=MEDIANES[,2]
     #View(Data.all.files.OK[[i]])
 
-###Para encontrar la cantidad de datos repetidos en un dia        
-    Data.all.files.OK2=Data.all.files.OK[[i]]
-    posiZero=(which(Data.all.files.OK2[,3]<=1))#buscar valores menores iguales a 1
-    Data.all.files.OK2[posiZero,3]=NA###reemplazar esos valores temporalmente por NA
-    sub=Data.all.files.OK2 #
-    rez1=sub$Value[-1]
-    rez1[length(sub$Value)]=sub$Value[length(sub$Value)]
-    difer=sub$Value-rez1
-    sub2=cbind(sub,difer)
-    sub2=subset(sub2,sub2$difer==0)
+###Para encontrar la cantidad de datos repetidos consecutivos en un dia
+###Solo si los registros se hicieron cada 30 minutos o mas    
+      #     if(median(Data.all.files.OK[[i]]$DIFF)>=30) {
+      #     
+      #       Data.all.files.OK2=Data.all.files.OK[[i]]
+      #       #head(Data.all.files.OK2,74)
+      #       var=substring(nom.files[i],nchar(nom.files[i])-3,nchar(nom.files[i]))
+      #       if(var=="RAIN"){
+      #         posiZero=(which(Data.all.files.OK2[,3]==0))#buscar valores menores iguales a 0
+      #         Data.all.files.OK2[posiZero,3]=NA###reemplazar esos valores temporalmente por NA
+      #       }
+      #       
+      #       sub=Data.all.files.OK2
+      #       rez1=sub$Value[-1]
+      #       rez1[length(sub$Value)]=sub$Value[length(sub$Value)]
+      #       difer=sub$Value-rez1
+      #       sub2=cbind(sub,difer)
+      #       sub2=subset(sub2,sub2$difer==0)
+      #       
+      #           if(dim(sub2)[1]!=0){
+      #         summValrep=aggregate(sub2,list(sub2$Date),length)[,c(1,4)]
+      #         summValrep=subset(summValrep,summValrep$Value>=1)#En el caso de precipitacion esta condicion descarta la NO lluvia o ceros
+      #         DateProm=dim(summValrep)[1]
+      #         percent=round(DateProm/diasEst*100,2)
+      #         
+      #         if(DateProm>diasEst*0.2){
+      #           write.csv(summValrep,paste0(Filesroutesdestino,"ValRep_",percent,"_",nom.files[i],".csv"))
+      #         }
+      #       }
+      #     }
     
-    if(dim(sub2)[1]!=0){
-      summValrep=aggregate(sub2,list(sub2$Date),length)[,c(1,4)]
-      summValrep=subset(summValrep,summValrep$Value>=1)#En el caso de precipitacion esta condicion descarta la NO lluvia o ceros
-      DateProm=dim(summValrep)[1]
-      percent=round(DateProm/diasEst*100,2)
-      
-      if(DateProm>diasEst*0.1){
-        write.csv(summValrep,paste0(Filesroutesdestino,"ValRep_",percent,"_",nom.files[i],".csv"))
-      }
-    }
   }
-  
+  close(pb)#Cierra la barra de progreso
   # Tabla de valores de referencia
   REF=read.csv("Val_REF_QCHour.csv", header=T, row.names=1)
   
@@ -176,7 +191,7 @@ QCHORLY <- function(dirFol){
       VAR=toupper(VAR)    
       
       Vmax=REF[,VAR][1];Vmin=REF[,VAR][2]
-      Error=which(Data.all.files.OK[[IND]]$Value<=Vmin|Data.all.files.OK[[IND]]$Value>=Vmax)
+      Error=which(Data.all.files.OK[[IND]]$Value<Vmin|Data.all.files.OK[[IND]]$Value>Vmax)
       error=Data.all.files.OK[[IND]][Error,]    
       
       NUMBER=dim(error)[1]
@@ -216,7 +231,7 @@ QCHORLY <- function(dirFol){
       Tabla.fin=as.data.frame(resul,row.names=c("Datos","Erroneos","% Erroneos","Incoherencia temporal", "Problema UND","Duplicados"))
       resul1[[j]]=Tabla.fin
       nom.Summary[j]=nom.files[IND]
-      write.csv(Tabla.fin,paste0(Filesroutesdestino,nom.files[IND],"_Summary.csv"))
+      #write.csv(Tabla.fin,paste0(Filesroutesdestino,nom.files[IND],"_Summary.csv"))
       write.table(Data.all.files.OK[[IND]],paste0(Filesroutesdestino,nom.files[IND],"_QC1ready.txt"), sep="\t")
     }
   }
@@ -274,7 +289,7 @@ QCHORLY <- function(dirFol){
         PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
         if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
           ProbCohernciaTEMP=TRUE
-          print(paste0("Problema de incoherencia temporal en la serie !!",nom.files[[IND]]))}
+          print(paste0("Warning:  time inconsistency in :",nom.files[[IND]]))}
         
         # definicion de la funcion de umbral de ESOL
         UmbralESOL=function(x){
@@ -354,6 +369,8 @@ CONVERT <- function(dirFol){
   Serie.diaria=Data.all.files
   
   summary=list()
+  ###Debo corregir el ciclo, cuando no se puede obtener la conversion de un día 
+  ###porque no quedaron datos en el archivo horario falla el proceso
   for(i in 1:length(Data.all.files)){
     
     modif=0
@@ -495,7 +512,7 @@ CONVERT <- function(dirFol){
     # Generacion del reporte
     resul=c(registros.totales, NAentrada, round(NAentrada/registros.totales*100,2), registros.totales.dias, registros.rescatados, round(registros.rescatados/registros.totales.dias*100,2))
     Tabla.fin=as.data.frame(resul,row.names=c("Datos", "NA's", "% NA's", "Dias con datos", "Dias rescatables", "% rescatables"))
-    write.csv(Tabla.fin,paste0(Destino,nom.files[i], "_ResumenTransfDia.csv"))
+    #write.csv(Tabla.fin,paste0(Destino,nom.files[i], "_ResumenTransfDia.csv"))
     summary[[i]]=Tabla.fin
     
     if(modif==1){
@@ -611,8 +628,7 @@ QCDAILY <- function(dirFol){
   
   print("Wait a moment please...")
   ###Lectura de los archivos
-  
-  
+
   if(length(list.files(paste0(dirFol,"/SERIES_ORIGINAL/HOURLY/")))!=0){ #condicion para verificar si hay archivos horarios
     ruta=paste0(dirFol,"/PROCESS/02_SERIES_DAILY_to_QC/") 
   }else{
@@ -646,6 +662,8 @@ QCDAILY <- function(dirFol){
   summary=list()
   filmin=paste0(YStart,"-01-01")
   filmax=paste0(YEnd,"-12-31")
+  #si no hay datosque cumplan con los valores de REF falla el ciclo
+  
   for(i in 1:length(Data.all.files)){
     
     ProbDUP=FALSE
@@ -841,13 +859,20 @@ QCDAILY <- function(dirFol){
   nom.files<-substring(files,1,nchar(files)-4)#
   fil=files[grep("ReadyFillGaps",nom.files)]#
   files=fil[grep("TMAX|TMIN",fil)]#
+  nom.files<-substring(files,1,nchar(files)-18)
   
+  #La comparacion se debe realizar en parejas. Una misma estacion con ambas variables
+  IDs=substring(nom.files,1,nchar(nom.files)-5)
+  tab=table(IDs);SinPar=names(tab[tab==1])
+  
+  Discard=unique(c(SinPar,Discard))
   #Si hubo series descartadas en el paso anterior que involucraran a TMAX o TMIN
-  #Se descartan aqui tambien
+  #Se descartan de la comparacion
   if(exists("Discard")){
+    
       if(length(Discard)==1){
       DiscarD=grep(Discard,files)
-      }else   if(length(DiscarD)>1){
+      }else if(length(Discard)>1){
           grep2 <- function(pattern, x){grep(pattern, x)}
           grep2 <- Vectorize(FUN=grep2, vectorize.args='pattern')
           
@@ -856,11 +881,10 @@ QCDAILY <- function(dirFol){
           A2=Filter(function(x){length(x)>0},DiscarD)
           A3=((unlist(A2)))
           
-          files=files[-((A3))]
+          files=files[-(A3)]
         }
     }
-    
-  
+
   nom.files<-substring(files,1,nchar(files)-18)
   Datos <- lapply(paste(rutOrigen,"/",files,sep=""),function(x){read.table(x,header=T,sep="\t")})
   names(Datos)=nom.files
