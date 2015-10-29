@@ -24,7 +24,7 @@ sumando=function(x){
 ####Para gráficos diarios
 
 for(h in 1:length(files)){
-  
+  #head(data)
   data=lapply(paste0(rutOrigen,"/",files,sep=""),function(x){read.table(x,header=T,sep=",")})
   data=data[[h]];data=as.data.frame(data)
   data=filter(data,year %in% c(YStart:YEnd))

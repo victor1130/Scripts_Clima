@@ -21,14 +21,16 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(RMAWGEN)
-
+library(utils)
 #Work directory
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/MetaTolima/FaseII/"
+dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/Ubate/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 #Years of analisys
-YStart    <- 2004 #Star Year for analisys
+
+#Para Tolima
+YStart    <- 2013 #Star Year for analisys
 YEnd      <- 2015 #End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
@@ -60,8 +62,8 @@ QCHORLY(dirFol)
 #Convert
 CONVERT(dirFol)
 
-#Mix
-MIX(dirFol)#Debo corregir...si no hay datos horarios y diarios esta funcion no tiene sentido
+#Mix: solo si se tienen datos horarios y diarios de una misma estacion
+MIX(dirFol)
 
 #Quality Control station daily
 QCDAILY(dirFol)
@@ -89,8 +91,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: DontUse=c(2,4,9)
-#DontUse=c(4,7,11,13:16,19,25,26:30)
-GENERATOR_T_R(dirFol,YStart,YEnd,DontUse=c(4,7,11,13:16,19,25,26:30))
+
+GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
@@ -98,6 +100,5 @@ GEN_ESOL(dirFol)
 
 #Text files of ESOL and Final Graphics
 END_GRAPS(dirFol)
-
 
 ##############END

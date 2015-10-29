@@ -99,7 +99,7 @@ QCHORLY <- function(dirFol){
     Data.all.files.OK[[i]]$Hour=gsub("p", "PM", Data.all.files.OK[[i]]$Hour)
     
     #Condicion para identificar si la hora tiene segundos
-    Cond=((strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"))[1])
+    Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")[2]
     #Si Cond==NA no tiene segundos
     if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M %p"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
     }else{TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")}##SI formato original hora es 12:35:59 am/pm
@@ -206,17 +206,20 @@ QCHORLY <- function(dirFol){
           Hmin=times(strftime(strptime("7:00 PM","%I:%M %p"),"%H:%M:00"))
           Hmax=times(strftime(strptime("4:30 AM","%I:%M %p" ),"%H:%M:00"))
           Noche=Data.all.files.OK[[IND]][(Data.all.files.OK[[IND]]$Hour>Hmin)|(Data.all.files.OK[[IND]]$Hour<Hmax),] 
+          Noche2=na.omit(Noche)
+#           maxi=function(x){
+#             serie=na.omit(x)
+#             max=max(serie)
+#             return(max)
+#           }
+          # PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
           
-          maxi=function(x){
-            serie=na.omit(x)
-            max=max(serie)
-            return(max)
-          }
-          PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
-          
-          if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
+#           if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
+#             ProbCohernciaTEMP=TRUE
+#             print(paste0("Problem of time inconsistency in the serie: ",nom.files[[IND]]))}
+          if(dim(Noche2)[1]!=0){
             ProbCohernciaTEMP=TRUE
-            print(paste0("Problem of time inconsistency in the serie: ",nom.files[[IND]]))}
+            print(paste0("Problem of time inconsistency in the serie: !!",nom.files[[IND]]))}
         }else{
             print(paste0("Unit not covered,",nom.files[[IND]]))
         }
@@ -280,16 +283,19 @@ QCHORLY <- function(dirFol){
         Hmin=times(strftime(strptime("7:00 PM","%I:%M %p"),"%H:%M:00"))
         Hmax=times(strftime(strptime("4:30 AM","%I:%M %p"),"%H:%M:00"))
         Noche=Data.all.files.OK[[IND]][(Data.all.files.OK[[IND]]$Hour>Hmin)|(Data.all.files.OK[[IND]]$Hour<Hmax),] 
-        
-        maxi=function(x){
-          serie=na.omit(x)
-          max=max(serie)
-          return(max)
-        }
-        PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
-        if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
+        Noche2=na.omit(Noche)
+#         maxi=function(x){
+#           serie=na.omit(x)
+#           max=max(serie)
+#           return(max)
+#         }
+#         PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
+#         if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
+#           ProbCohernciaTEMP=TRUE
+#           print(paste0("Warning:  time inconsistency in :",nom.files[[IND]]))}
+        if(dim(Noche2)[1]!=0){
           ProbCohernciaTEMP=TRUE
-          print(paste0("Warning:  time inconsistency in :",nom.files[[IND]]))}
+          print(paste0("Problem of time inconsistency in the serie: !!",nom.files[[IND]]))}
         
         # definicion de la funcion de umbral de ESOL
         UmbralESOL=function(x){
@@ -323,12 +329,12 @@ QCHORLY <- function(dirFol){
       }
       # Generacion del Reporte
       if(dim(error)[1]!=0){
-        write.csv(error, paste0(Filesroutesdestino,nom.files[IND],"_Datos_erroneos.csv"))
+        write.csv(error, paste0(Filesroutesdestino,nom.files[IND],"_Data_error.csv"))
       }
       
       size=dim(Data.all.files[[IND]])[1]
       resul=c(size,NUMerror,round(NUMerror/size*100,2),as.character(ProbCohernciaTEMP), as.character(ProbUNIDAD), as.character(ProbDUP))
-      Tabla.fin=as.data.frame(resul,row.names=c("Datos","Erroneos","% erroneos","Incoherencia temporal", "Problema UND", "Duplicados"))
+      Tabla.fin=as.data.frame(resul,row.names=c("Data","Error","% Error","Incoherencia temporal", "Problema UND", "Duplicados"))
       resul2[[j]]=Tabla.fin
       nom.Summary2[j]=nom.files[IND]
       write.csv(Tabla.fin,paste0(Filesroutesdestino,nom.files[IND],"_Summary.csv"))
@@ -670,7 +676,7 @@ QCDAILY <- function(dirFol){
     colnames(Data.all.files[[i]])=c("Date", "Value")
     # Quitar NA para trabajar solo con valores
     Data.all.filesNAFree[[i]]=Data.all.files[[i]][which(!is.na(Data.all.files[[i]]$Value)),]
-    
+    summary(Data.all.filesNAFree[[i]])
     # Lectura de fechas
     if(length(grep("TRUE",i==TypeOrig))==1){
       DateOK=as.Date(as.character(Data.all.filesNAFree[[i]]$Date), "%Y-%m-%d")  #Formato de fecha CON separadores
@@ -760,6 +766,10 @@ QCDAILY <- function(dirFol){
     Data.all.filesNAFree[[i]][Error,]$Value=NA
     }
     
+    if(sum(!is.na(Data.all.filesNAFree[[i]]$Value))<=30){
+      print(paste0("The station ",nom.files[i],", do not have data for the period of interest."))
+      next
+    }
     # Detectar valores fuera de 4 dev, sin tener en cuenta los descartados anteriormente
     if(VAR=="RAIN"){
     Dev=sd(na.omit(Data.all.filesNAFree[[i]]$Value[Data.all.filesNAFree[[i]]$Value>0]))
@@ -865,13 +875,15 @@ QCDAILY <- function(dirFol){
   IDs=substring(nom.files,1,nchar(nom.files)-5)
   tab=table(IDs);SinPar=names(tab[tab==1])
   
-  Discard=unique(c(SinPar,Discard))
+  if(exists("Discard")){
+    Discard=unique(c(SinPar,Discard))}else{Discard=unique(c(SinPar))}
   #Si hubo series descartadas en el paso anterior que involucraran a TMAX o TMIN
   #Se descartan de la comparacion
   if(exists("Discard")){
     
       if(length(Discard)==1){
       DiscarD=grep(Discard,files)
+      files=files[-(DiscarD)]
       }else if(length(Discard)>1){
           grep2 <- function(pattern, x){grep(pattern, x)}
           grep2 <- Vectorize(FUN=grep2, vectorize.args='pattern')
@@ -880,8 +892,8 @@ QCDAILY <- function(dirFol){
           
           A2=Filter(function(x){length(x)>0},DiscarD)
           A3=((unlist(A2)))
-          
-          files=files[-(A3)]
+          if(length(A3)!=0){
+          files=files[-(A3)]}
         }
     }
 
