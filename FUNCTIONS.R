@@ -101,7 +101,7 @@ QCHORLY <- function(dirFol){
     #Condicion para identificar si la hora tiene segundos
     Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")[2]
     #Si Cond==NA no tiene segundos
-    if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M %p"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
+    if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
     }else{TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")}##SI formato original hora es 12:35:59 am/pm
     
     Data.all.files.OK[[i]]$Hour=times(TEMPhour)
@@ -558,7 +558,6 @@ MIX<-function(dirFol){
   All.FlsOrDly=lapply(paste0(FilesDlyOr,FlsOrDly),function(x){read.table(x,sep="\t",header=T,blank.lines.skip=TRUE)})
   nom2=substring(FlsOrDly,1,nchar(FlsOrDly)-4)
   
-  
   Esolpos=grep("ESOL",nom2)#Elementos de ESOL de origen diario
   modif=nom2[Esolpos]
   if(length(modif)>0){
@@ -588,9 +587,8 @@ MIX<-function(dirFol){
   stations=c(nom1,nom2);UniqueNom=unique(stations)#Lista de referencia
   
   All.Files=c(All.FlsOriHr,All.FlsOrDly)
-  length(UniqueNom)
-  length(All.Files)
   rep=list()
+  
   for(i in 1:length(UniqueNom)){
     
     rep[[i]]=grep(UniqueNom[i],stations)#Aqui identificon si hay repetidos, lo que implica que una 
@@ -675,7 +673,7 @@ QCDAILY <- function(dirFol){
   summary=list()
   filmin=paste0(YStart,"-01-01")
   filmax=paste0(YEnd,"-12-31")
-  #si no hay datosque cumplan con los valores de REF falla el ciclo
+  #si no hay datos que cumplan con los valores de REF falla el ciclo
   
   for(i in 1:length(Data.all.files)){
     
@@ -683,7 +681,7 @@ QCDAILY <- function(dirFol){
     colnames(Data.all.files[[i]])=c("Date", "Value")
     # Quitar NA para trabajar solo con valores
     Data.all.filesNAFree[[i]]=Data.all.files[[i]][which(!is.na(Data.all.files[[i]]$Value)),]
-    summary(Data.all.filesNAFree[[i]])
+    #summary(Data.all.filesNAFree[[i]])
     # Lectura de fechas
     if(length(grep("TRUE",i==TypeOrig))==1){
       DateOK=as.Date(as.character(Data.all.filesNAFree[[i]]$Date), "%Y-%m-%d")  #Formato de fecha CON separadores
@@ -727,16 +725,16 @@ QCDAILY <- function(dirFol){
       if(UNIT=="WAM2"){
         SerieOPccm2=Data.all.filesNAFree[[i]]$Value*24*60*60/4.18/10000
         Data.all.filesNAFree[[i]]$Value=SerieOPccm2
-        Data.all.filesNAFree[[i]]$Value[which((Data.all.filesNAFree[[i]]$Value>190)==FALSE)]=NA
+        #Data.all.filesNAFree[[i]]$Value[which((Data.all.filesNAFree[[i]]$Value>190)==FALSE)]=NA
       }else if(UNIT=="MJM2"){
         SerieOPccm2=Data.all.filesNAFree[[i]]$Value*100/4.18
         Data.all.filesNAFree[[i]]$Value=SerieOPccm2
-        Data.all.filesNAFree[[i]]$Value[which((Data.all.filesNAFree[[i]]$Value>190)==FALSE)]=NA
+        #Data.all.filesNAFree[[i]]$Value[which((Data.all.filesNAFree[[i]]$Value>190)==FALSE)]=NA
         
-      }else if(UNIT=="CCM2"){
-        SerieOPccm2=Data.all.filesNAFree[[i]]$Value>190
-        Data.all.filesNAFree[[i]]$Value[which(SerieOPccm2==FALSE)]=NA
-      }
+      }#else if(UNIT=="CCM2"){
+      #  SerieOPccm2=Data.all.filesNAFree[[i]]$Value>190
+      #  Data.all.filesNAFree[[i]]$Value[which(SerieOPccm2==FALSE)]=NA
+      #}
       
       ###En caso de ESOL, la unidad se convierte de la unidad original hasta CCM2. Aqui se cambia el nombre del archivo final
       ID=substring(nom.files[i],1,nchar(nom.files[i])-10)
@@ -756,7 +754,7 @@ QCDAILY <- function(dirFol){
       lat=Latitudes[which(Latitudes$ID==ID),2]#Busca dentro del archivo, la latitud
       A=0.25;B=0.50 #constantes
       
-      Rs=ap(days,lat,extraT=NULL,A,B,sunshine)*(100/4.18)
+      Rs=ap(days=days, lat=lat, extraT=NULL, A=A, B=B, SSD=sunshine)*(100/4.18)
       ###SIRAD convierte a MJ, por lo que el factor de correccion (100/4.18) en para llevarlo a CCM2
       
       Data.all.filesNAFree[[i]]$Value=Rs
@@ -767,6 +765,8 @@ QCDAILY <- function(dirFol){
     
     # Detecar valores fuera de rango
     Vmax=REF[,VAR][1];Vmin=REF[,VAR][2]
+###########################################################%#$%$%^$%&%^&^&%^&%^&%&%^&%^&    
+      
     Error=which(Data.all.filesNAFree[[i]]$Value<Vmin | Data.all.filesNAFree[[i]]$Value>Vmax)
     Bonnes1=Data.all.filesNAFree[[i]][Error,]#Para guardar
     if(dim(Bonnes1)[1]>0){

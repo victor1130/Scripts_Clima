@@ -11,27 +11,29 @@
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 #PACKAGES
-library(chron)
-library(stringr)
-library(tcltk)
-library(sirad)
-library(randomForest)
-library(rpart)
-library(tidyr)
-library(dplyr)
-library(ggplot2)
-library(RMAWGEN)
-library(utils)
-#Work directory
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/AntCorTol/"
+if(require(ggplot2)==FALSE){install.packages("ggplot2")} 
+if(require(rpart)==FALSE){ install.packages("rpart")}
+if(require(RMAWGEN)==FALSE){install.packages("RMAWGEN") } 
+if(require(chron)==FALSE){install.packages("chron")}
+if(require(randomForest)==FALSE){install.packages("randomForest")}
+if(require(utils)==FALSE){install.packages("utils")}
+if(require(stringr)==FALSE){install.packages("stringr")}
+if(require(tcltk)==FALSE){install.packages("tcltk")}
+if(require(sirad)==FALSE){install.packages("sirad")}
+if(require(tidyr)==FALSE){install.packages("tidyr")}
+if(require(dplyr)==FALSE){install.packages("dplyr")}
+
+
+#Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
+dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/Ubate/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 #Years of analisys
 
 #Para Tolima
-YStart    <- 2011 #Star Year for analisys
-YEnd      <- 2015 #End  Year for analisys
+YStart    <-  2011#Star Year for analisys
+YEnd      <-  2014#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -60,14 +62,13 @@ FOLDERS(dirFol)
 QCHORLY(dirFol)
 
 #Convert
-CONVERT(dirFol)###Corregir
+CONVERT(dirFol)
 
 #Mix: solo si se tienen datos horarios y diarios de una misma estacion
 MIX(dirFol)
 
 #Quality Control station daily
-QCDAILY(dirFol)###Corregir
-
+QCDAILY(dirFol)
 
 #Inputs
 INPUTS(dirFol)
@@ -92,7 +93,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-DontUse=c(6,8,9,11)
+#DontUse=c(4:31,33,37:39,44,47)#Antioquia
+#DontUse=c(1:3,5,14:36,39:50)#Cordoba
 
 GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 #length(DontUse)
@@ -104,3 +106,4 @@ GEN_ESOL(dirFol)
 END_GRAPS(dirFol)
 
 ##############END
+
