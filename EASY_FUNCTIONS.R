@@ -25,7 +25,7 @@ if(require(dplyr)==FALSE){install.packages("dplyr")}
 
 
 #Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/Ubate/"
+dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/CundinamarcaBoyaca/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
@@ -49,8 +49,6 @@ YEnd      <-  2014#End  Year for analisys
                         ##        ##   ##   ##     ## ##       ##             ##       ## 
                         ##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ## 
                         ##        ##     ##  #######   ######  ########  ######   ######  
-
-
 
 #Create folders
 FOLDERS(dirFol)
@@ -93,10 +91,9 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-#DontUse=c(4:31,33,37:39,44,47)#Antioquia
-#DontUse=c(1:3,5,14:36,39:50)#Cordoba
+DontUse=c(3,8,11,4,9,6,12)
 
-GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
+GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)

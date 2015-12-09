@@ -1234,7 +1234,7 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
                                                          Tn_all=tmin_1,
                                                          year_min=year_min,
                                                          year_max=year_max,
-                                                         p=1,n_GPCA_iteration=n_GPCA_iter,
+                                                         p=2,n_GPCA_iteration=n_GPCA_iter,
                                                          n_GPCA_iteration_residuals=n_GPCA_iteration_residuals,
                                                          sample="monthly")
   
@@ -1255,7 +1255,7 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
                                                            year_max=year_max,
                                                            exogen=exogen,
                                                            exogen_sim=exogen_sim,
-                                                           p=5,n_GPCA_iteration=n_GPCA_iter_prec,
+                                                           p=2,n_GPCA_iteration=n_GPCA_iter_prec,
                                                            n_GPCA_iteration_residuals=n_GPCA_iteration_residuals_prec,
                                                            sample="monthly",valmin=1,extremes=TRUE,no_spline = T)
   
@@ -1276,7 +1276,7 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   data_genPrec <- extractmonths(data=generation00_prec$prec_gen,when=c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep", "Oct", "Nov", "Dec"),origin)
   data_genTmin <- extractmonths(data=generation00_temp$out$Tn_gen,when=c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep", "Oct", "Nov", "Dec"),origin)
   data_genTmax <- extractmonths(data=generation00_temp$out$Tx_gen,when=c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep", "Oct", "Nov", "Dec"),origin)
-  
+  summary(data_genPrec$X24035010)
   #------------------------------Salvando Arquivo------------------------------------
   archPrec=list(0);archTmax=list(0)
   archTmin=list(0);archPrec2=list(0)
