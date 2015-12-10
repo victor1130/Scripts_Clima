@@ -1192,7 +1192,6 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
 PLOTSERIES<-function(dirFol,num){
   
   Var=num
-  
   dirFol<-paste0(dirFol,"PROCESS/03_SERIES_DAILY_With_Holes")
   rutOrigen=paste0(dirFol)
   files <-list.files(rutOrigen,pattern="\\.csv$");files <-files[grep("_to",files)]

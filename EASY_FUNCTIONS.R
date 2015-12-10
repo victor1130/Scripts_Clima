@@ -96,8 +96,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-DontUse=c(3,5,8,10,11,14)
-GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
+#DontUse=c(3,5,8,10,11,14)
+GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
