@@ -74,7 +74,7 @@ INPUTS(dirFol)
 #Graficos descriptivos
 # num=? es la variable a trabajar
 # 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
-PLOTSERIES(dirFol,num=2)
+PLOTSERIES(dirFol,num=5)
 
 #Graphics after QC
 GRAPHICS()
