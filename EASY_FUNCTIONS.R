@@ -22,7 +22,7 @@ if(require(tcltk)==FALSE){install.packages("tcltk")}
 if(require(sirad)==FALSE){install.packages("sirad")}
 if(require(tidyr)==FALSE){install.packages("tidyr")}
 if(require(dplyr)==FALSE){install.packages("dplyr")}
-
+if(require(googleVis)==FALSE){install.packages("googleVis")}
 
 #Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
 dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/CundinamarcaBoyaca/"
@@ -71,6 +71,11 @@ QCDAILY(dirFol)
 #Inputs
 INPUTS(dirFol)
 
+#Graficos descriptivos
+# num=? es la variable a trabajar
+# 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
+PLOTSERIES(dirFol,num=2)
+
 #Graphics after QC
 GRAPHICS()
 
@@ -91,8 +96,7 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-DontUse=c(3,8,11,4,9,6,12)
-
+DontUse=c(3,5,8,10,11,14)
 GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy

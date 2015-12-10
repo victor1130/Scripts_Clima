@@ -1186,9 +1186,36 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
   
 }
 
+#Grafico de todas las series por variable.
+# num=? es la variable a trabajar
+# 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
+PLOTSERIES<-function(dirFol,num){
+  
+  Var=num
+  
+  dirFol<-paste0(dirFol,"PROCESS/03_SERIES_DAILY_With_Holes")
+  rutOrigen=paste0(dirFol)
+  files <-list.files(rutOrigen,pattern="\\.csv$");files <-files[grep("_to",files)]
+  
+  data=lapply(paste0(rutOrigen,"/",files),function(x){read.table(x,header=T,sep=",")})
+  var=(data[[Var]])
+  
+  variable=substring(files[Var],1,nchar(files[Var])-7)
+  print(variable)
+  Cest=dim(var)[2]-3#cantidad de estaciones
+  
+  Date<-as.Date(as.character(paste0(var$year,"-",var$month,"-",var$day)))
+  data=data.frame(Date,var[4:ncol(var)])
+  
+  Line2 <- gvisLineChart(data, "Date",options=list(width=1500, height=700,title=variable,series="[{targetAxisIndex: 0}]",
+                                                   vAxes="[{viewWindowMode:'explicit'}]"))   
+  plot(Line2)
+
+}
+
 #################################################Imputacion de tmax tmin y rain
 GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
-  
+  lag=2
   print("Wait a moment please...")
   
   rutDestino2=paste0(dirFol,"/PROCESS/04_SERIES_DAILY_OK/")
@@ -1234,7 +1261,7 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
                                                          Tn_all=tmin_1,
                                                          year_min=year_min,
                                                          year_max=year_max,
-                                                         p=2,n_GPCA_iteration=n_GPCA_iter,
+                                                         p=lag,n_GPCA_iteration=n_GPCA_iter,
                                                          n_GPCA_iteration_residuals=n_GPCA_iteration_residuals,
                                                          sample="monthly")
   
@@ -1255,7 +1282,7 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
                                                            year_max=year_max,
                                                            exogen=exogen,
                                                            exogen_sim=exogen_sim,
-                                                           p=2,n_GPCA_iteration=n_GPCA_iter_prec,
+                                                           p=lag,n_GPCA_iteration=n_GPCA_iter_prec,
                                                            n_GPCA_iteration_residuals=n_GPCA_iteration_residuals_prec,
                                                            sample="monthly",valmin=1,extremes=TRUE,no_spline = T)
   
