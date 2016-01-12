@@ -10,7 +10,7 @@
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
-#PACKAGES
+# PACKAGES
 if(require(ggplot2)==FALSE){install.packages("ggplot2")} 
 if(require(rpart)==FALSE){ install.packages("rpart")}
 if(require(RMAWGEN)==FALSE){install.packages("RMAWGEN") } 
@@ -24,16 +24,16 @@ if(require(tidyr)==FALSE){install.packages("tidyr")}
 if(require(dplyr)==FALSE){install.packages("dplyr")}
 if(require(googleVis)==FALSE){install.packages("googleVis")}
 
-#Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Cundinamarca/CundinamarcaBoyaca/"
+# Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
+dirFol    <- "C:/Users/vhpatino/Desktop/TEST"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
-#Years of analisys
+# Years of analisys
 
-#Para Tolima
-YStart    <-  2011#Star Year for analisys
-YEnd      <-  2014#End  Year for analisys
+# Para colocar años a procesar... 4 digitos
+YStart    <-  2005#Star Year for analisys
+YEnd      <-  2015#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -50,31 +50,32 @@ YEnd      <-  2014#End  Year for analisys
                         ##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ## 
                         ##        ##     ##  #######   ######  ########  ######   ######  
 
-#Create folders
+# Create folders
 FOLDERS(dirFol)
         ########################################################################
         #WARNING!!!! :You need put files on SERIES_ORIGINAL folder for continue#
         ########################################################################
 
-#Quality Control station hourly
-QCHORLY(dirFol)
+# Quality Control station hourly
+# Use Dup=1 inside QCHOURLY to view duplicateds. Default Dup=NULL
+QCHOURLY(dirFol)
 
-#Convert
+# Convert
 CONVERT(dirFol)
 
-#Mix: solo si se tienen datos horarios y diarios de una misma estacion
+# "Mix" of the same station in differents files with two temporal scales (hourly and daily). 
 MIX(dirFol)
 
-#Quality Control station daily
+# Quality Control station daily
 QCDAILY(dirFol)
 
-#Inputs
+# Inputs
 INPUTS(dirFol)
 
-#Graficos descriptivos
+# Graficos descriptivos
 # num=? es la variable a trabajar
 # 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
-PLOTSERIES(dirFol,num=5)
+PLOTSERIES(dirFol,num=3)
 
 #Graphics after QC
 GRAPHICS()
@@ -96,8 +97,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-#DontUse=c(3,5,8,10,11,14)
-GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
+DontUse=c(3,6,7,15,12,1)
+GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
@@ -107,4 +108,3 @@ GEN_ESOL(dirFol)
 END_GRAPS(dirFol)
 
 ##############END
-
