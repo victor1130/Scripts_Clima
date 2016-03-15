@@ -51,6 +51,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
         mens=paste0(("Error: There is a problem with the headers in the file"),i," (Date,Hour or Value).")
         print(mens)
       }
+      
     }
     #########################
     # Crear series de destino
@@ -62,11 +63,13 @@ QCHOURLY <- function(dirFol,Dup=NULL){
     
     pb <- winProgressBar(title = "Progress bar - Step 1", min = 0,
                          max = length(Data.all.files), width = 300)
+    
     for(i in seq_along(Data.all.files)){
-      Sys.sleep(0.1)
-      setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
+    Sys.sleep(0.1)
+     setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
       
-      Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  ###ok
+      Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  ###
+      #summary(Data.all.files.OK[[i]][,3])
       ProbDUP=FALSE
       
       dataFech=Data.all.files.OK[[i]]$Date
@@ -74,7 +77,8 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       #Ajuste de formato Fecha
       if(typeOrig>0){
         #Si estas vienen con separador yyyy-mm-dd
-        Data.all.files.OK[[i]]$Date=as.Date(as.character(Data.all.files[[i]]$Date))
+        Data.all.files.OK[[i]]$Date=as.Date(as.character(Data.all.files[[i]]$Date),"%Y-%m-%d")
+        
       }else{
         #Si estas vienen SIN separador yyyymmdd
         Data.all.files.OK[[i]]$Date=as.Date(as.character(Data.all.files[[i]]$Date), "%Y%m%d")}
@@ -82,28 +86,41 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       Data.all.files.OK2=Data.all.files.OK[[i]]$Date>=as.Date(filmin)&Data.all.files.OK[[i]]$Date<=as.Date(filmax)
       Data.all.files.OK[[i]]=Data.all.files.OK[[i]][Data.all.files.OK2,]
       
+      
+      # ok1=Data.all.files.OK[[i]]
+      # head(ok1,25)
       #Conversion de horas
       TEMPhour=Data.all.files[[i]]$Hour
       Data.all.files.OK[[i]]$Hour=gsub("a.m.", "AM", Data.all.files.OK[[i]]$Hour)
       Data.all.files.OK[[i]]$Hour=gsub("p.m.", "PM", Data.all.files.OK[[i]]$Hour)
-      Data.all.files.OK[[i]]$Hour=gsub("a,m,", "AM", Data.all.files.OK[[i]]$Hour)
-      Data.all.files.OK[[i]]$Hour=gsub("p,m,", "PM", Data.all.files.OK[[i]]$Hour)
-      Data.all.files.OK[[i]]$Hour=gsub("a", "AM", Data.all.files.OK[[i]]$Hour)
-      Data.all.files.OK[[i]]$Hour=gsub("p", "PM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("a,m,", "AM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("p,m,", "PM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("a", "AM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("p", "PM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("AM", "AM", Data.all.files.OK[[i]]$Hour)
+      # Data.all.files.OK[[i]]$Hour=gsub("PM", "PM", Data.all.files.OK[[i]]$Hour)
+      #ok2=Data.all.files.OK[[i]]
+      #head(ok2,25)
+      #Data.all.files.OK[[i]]=ok2
       
       #Condicion para identificar si la hora tiene segundos
       Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")[2]
       #Si Cond==NA no tiene segundos
-      if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
+      if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M %p"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
       }else{TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")}##SI formato original hora es 12:35:59 am/pm
       
       Data.all.files.OK[[i]]$Hour=times(TEMPhour)
+      
+      #ok3=Data.all.files.OK[[i]]
+      #head(ok3,25)
       #Ordeno los datos cronologicamente
       Data.all.files.OK[[i]]=Data.all.files.OK[[i]][order(Data.all.files.OK[[i]]$Date,Data.all.files.OK[[i]]$Hour),]
-      
+      # okkk=Data.all.files.OK[[i]]
+      # head(okkk,25)
       # Detectar duplicados de un dia con igual hora
-      HOURDATE=strptime(paste(Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]]$Hour), "%Y-%m-%d %H:%M:%S")
+      HOURDATE=strptime(paste0(Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]]$Hour), "%Y-%m-%d %H:%M:%S")
       DUP=duplicated(HOURDATE)
+      
       
       if(sum(DUP, na.rm=TRUE)>0){
         ProbDUP=TRUE
@@ -116,15 +133,16 @@ QCHOURLY <- function(dirFol,Dup=NULL){
               }
         }
         #Si hay horas duplicadas en un dia, se corrige el problema usando la mediana para los datos
-        Data.all.files.OK[[i]]=aggregate(Data.all.files.OK[[i]],by=list(Data.all.files.OK[[i]]$Hour,Data.all.files.OK[[i]]$Date),median)[-c(1,2)]
+        Data.all.files.OK[[i]]=
+          dd=aggregate(Data.all.files.OK[[i]],by=list(Data.all.files.OK[[i]]$Hour,Data.all.files.OK[[i]]$Date),median)[-c(1,2)]
       }
-      
+      #head(dd,25)
       # Calculo del intervalo de tiempo entre registros
       Data.all.files.OK[[i]]["DIFF"]=NA #Se crea una columna "DIFF" con NA's
       HOURDATE=strptime(paste(Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]]$Hour), "%Y-%m-%d %H:%M") 
       Decal=c(HOURDATE[1],HOURDATE[-length(HOURDATE)])
       Data.all.files.OK[[i]]$DIFF=as.numeric(difftime(HOURDATE,Decal,units="mins"))# Las diferencias son minutos
-      
+     # head(Data.all.files.OK[[i]],25)
       # Al hacer la diferencia entre el tiempo t_i+1 menos t_i, sabre cuantos minutos pasaron para llegar al registro
       # i+1, pero no hay registro antes de i por lo que no habra intervalo de tiempo para dicho registro
       # En esta parte del codigo lo que se hace es asignar la mediana de tiempo observada en el dia.
@@ -394,6 +412,7 @@ CONVERT <- function(dirFol){
   pb <- winProgressBar(title = "Progress bar", min = 0,
                        max = length(Data.all.files), width = 300) 
   for(i in 1:length(Data.all.files)){
+    
     Sys.sleep(0.1)
     setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
     modif=0
@@ -412,6 +431,7 @@ CONVERT <- function(dirFol){
     # Calculo de las medianas de intervalo de tiempo
     medianas=aggregate(Data.all.files.OK[[i]]$DIFF~Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]],median)
     colnames(medianas)=c("Date", "Median")
+    #head(medianas)
     
     if(VAR=="TMAX"){
       # Definir fechas usables  
@@ -422,7 +442,7 @@ CONVERT <- function(dirFol){
       registros=aggregate(Data.in.time$Value~Data.in.time$Date, Data.in.time,length, simplify=TRUE)
       colnames(registros)=c("Date", "RegNumber")
       Fechas.rescat=merge(registros, medianas, by.x="Date", by.y="Date")
-      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>(0.8*minutos.dia/Fechas.rescat$Median)),]
+      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>=floor(0.8*minutos.dia/Fechas.rescat$Median)),]
       
       # Calcular dato diario
       FechasOK.POS=which(!is.na(match(Data.in.time$Date, Fechas.rescatOK[[1]])))
@@ -444,7 +464,7 @@ CONVERT <- function(dirFol){
       registros=aggregate(Data.in.time$Value~Data.in.time$Date, Data.in.time,length, simplify=TRUE)
       colnames(registros)=c("Date", "RegNumber")
       Fechas.rescat=merge(registros, medianas, by.x="Date", by.y="Date")
-      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>(0.8*minutos.dia/Fechas.rescat$Median)),]
+      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>=floor(0.8*minutos.dia/Fechas.rescat$Median)),]
       
       # Calcular dato diario
       FechasOK.POS=which(!is.na(match(Data.in.time$Date, Fechas.rescatOK[[1]])))
@@ -464,7 +484,7 @@ CONVERT <- function(dirFol){
       registros=aggregate(Data.in.time$Value~Data.in.time$Date, Data.in.time,length, simplify=TRUE)
       colnames(registros)=c("Date", "RegNumber")
       Fechas.rescat=merge(registros, medianas, by.x="Date", by.y="Date")
-      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>(0.8*minutos.dia/Fechas.rescat$Median)),]
+      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>=floor(0.8*minutos.dia/Fechas.rescat$Median)),]
       
       # Calcular dato diario
       FechasOK.POS=which(!is.na(match(Data.in.time$Date, Fechas.rescatOK[[1]])))
@@ -481,10 +501,12 @@ CONVERT <- function(dirFol){
       # Definir fechas usables  
       minutos.dia=24*60
       Data.in.time=Data.all.files.OK[[i]]
+      head(Data.in.time,24)
       registros=aggregate(Data.in.time$Value~Data.in.time$Date, Data.in.time,length, simplify=TRUE)
+      #head(registros)
       colnames(registros)=c("Date", "RegNumber")
       Fechas.rescat=merge(registros, medianas, by.x="Date", by.y="Date")
-      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>(0.8*minutos.dia/Fechas.rescat$Median)),]
+      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>=floor(0.8*minutos.dia/Fechas.rescat$Median)),]
       #summary(medianas)
       # Calcular dato diario
       FechasOK.POS=which(!is.na(match(Data.in.time$Date, Fechas.rescatOK[[1]])))
@@ -509,7 +531,7 @@ CONVERT <- function(dirFol){
       registros=aggregate(Data.in.time$Value~Data.in.time$Date, Data.in.time,length, simplify=TRUE)
       colnames(registros)=c("Date", "RegNumber")
       Fechas.rescat=merge(registros, medianas, by.x="Date", by.y="Date")
-      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>(0.8*minutos.dia/Fechas.rescat$Median)),]
+      Fechas.rescatOK=Fechas.rescat[which(Fechas.rescat$RegNumber>=floor(0.8*minutos.dia/Fechas.rescat$Median)),]
       
       ###colocando
       if(dim(Fechas.rescatOK)[1]< 1){
@@ -795,21 +817,26 @@ QCDAILY <- function(dirFol){
       print(paste0("The station ",nom.files[i],", do not have data for the period of interest."))
       next
     }
-    # Detectar valores fuera de 4 dev, sin tener en cuenta los descartados anteriormente
+    # Detectar valores atipicos...para rain no se tienen encuenta valores cero para calculo de la desviacion y promedio, sin tener en cuenta los descartados anteriormente
     if(VAR=="RAIN"){
     Dev=sd(na.omit(Data.all.filesNAFree[[i]]$Value[Data.all.filesNAFree[[i]]$Value>0]))
     PROMEDIO=mean(na.omit(Data.all.filesNAFree[[i]]$Value[Data.all.filesNAFree[[i]]$Value>0]))
     }else{
       Dev=sd(na.omit(unlist(Data.all.filesNAFree[[i]]$Value)))
       PROMEDIO=mean(na.omit(unlist(Data.all.filesNAFree[[i]]$Value)))
-      
     }  
     
     Data.all.filesNAFree[[i]]$Out4Desv=NA
     
-    #Colocando indicador de valor fuera de 4 desv 
-    Data.all.filesNAFree[[i]]$Out4Desv[(Data.all.filesNAFree[[i]]$Value)>(PROMEDIO+4*Dev)|
-                                       (Data.all.filesNAFree[[i]]$Value)<(PROMEDIO-4*Dev)]= c("Out4desv")
+    #Colocando indicador de valores atipicos (4 o 3 desv)
+    if(VAR=="RAIN"){
+      LU=PROMEDIO+4*Dev;LI=PROMEDIO-4*Dev
+    Data.all.filesNAFree[[i]]$Out4Desv[(Data.all.filesNAFree[[i]]$Value)>(LU)|(Data.all.filesNAFree[[i]]$Value)<(LI)]= c("Out4SD")
+                    }else{
+      LU=PROMEDIO+3*Dev;LI=PROMEDIO-3*Dev                                                                                                
+    Data.all.filesNAFree[[i]]$Out4Desv[(Data.all.filesNAFree[[i]]$Value)>(LU)|(Data.all.filesNAFree[[i]]$Value)<(LI)]= c("Out3SD")
+                   }
+    
     
     # Deteccion rango de fechas
     Date.min=min(Data.all.filesNAFree[[i]]$Date);Date.max=max(Data.all.filesNAFree[[i]]$Date)
@@ -844,17 +871,29 @@ QCDAILY <- function(dirFol){
     resul=c(size, Duplicados, round((Duplicados/size)*100,2), Error, round((Error/size)*100,2), Fuera4DEV, NAentrada, round((NAentrada/size)*100,2), ProbDUP, MAYORsalto)
     Tabla.fin=as.data.frame(resul,row.names=c("Datos", "Duplicated", "% duplicated", "Errors", "% errors", "Values out 4 DEV","NA's", "% NA's", "Date duplicated Different values", "Greater Gap"))
     summary[[i]]=Tabla.fin
-    #write.csv(Tabla.fin,paste0(Destino,nom.files[i], "_SummaryDaily.csv"))
     write.table(Serie.diaria[[i]],paste0(Destino,nom.files[i], "_ReadyFillGaps.txt"), sep="\t", row.names=FALSE)
-    names(Serie.diaria[[i]])
-    png(paste0(Destino,nom.files[i], "_Plotserie.png"), width=600, height=400, units="px")
-    plot(Serie.diaria[[i]]$Value~Serie.diaria[[i]]$Date, ylab="Value", xlab="Date", type="l")
-    dev.off()
+ 
+    #dim(Serie.diaria[[i]])
+    if(VAR!="RAIN"){
+      qplot(Serie.diaria[[i]]$Date,Serie.diaria[[i]]$Value, ylab="Value", xlab="Date")+
+        geom_line()+geom_hline(yintercept = c(LI,LU), colour="red",linetype=2)+
+        geom_hline(yintercept = c(Vmax,Vmin), colour="blue",linetype=2)+
+        annotate("text",x=max(Serie.diaria[[i]]$Date), y=c(LU+1),label="Outlier",colour="red")+ 
+        annotate("text",x=min(Serie.diaria[[i]]$Date), y=c(Vmax+1),label="Ref. Value",colour="blue")}else{
+          
+          qplot(Serie.diaria[[i]]$Date,Serie.diaria[[i]]$Value, ylab="Value", xlab="Date")+
+            geom_line()+geom_hline(yintercept = c(LU), colour="red",linetype=2)+
+            geom_hline(yintercept = c(Vmax), colour="blue",linetype=2)+
+            annotate("text",x=max(Serie.diaria[[i]]$Date), y=c(LU+1),label="Outlier",colour="red")+ 
+            annotate("text",x=min(Serie.diaria[[i]]$Date), y=c(Vmax+1),label="Ref. Value",colour="blue")
+
+        }
+ 
+    ggsave(paste0(Destino,nom.files[i], "_Plotserie.png"), width=25, height=15,units = "cm")
     
-#     png(paste0(Destino,nom.files[i], "_Boxplotserie.png"), width=600, height=400, units="px")
-#     boxplot(Serie.diaria[[i]]$Value)
-#     dev.off()
+
   }
+ 
   
   #Identificando elementos NULL de la lista
   #Se dan cuando la serie no tiene informacion en el periodo de interes
@@ -873,17 +912,13 @@ QCDAILY <- function(dirFol){
   #Procedimiento siguiente que implica una comparacion entre dichas variables, de lo contrario el proceso falla
   #Discard tendra entonces los ID  que se deben quitar
   
-  #Discard=nom.files[SinDato][grep("TMAX|TMIN",nom.files[SinDato])]
-  #Discard=unique(substring(Discard,1,nchar(Discard)-5))#Extraer solo el ID
-  
   }else{
     summary2=(as.data.frame(do.call(cbind,summary)))
     colnames(summary2)=nom.files; summary2=t(summary2)
   }
   
   write.csv(summary2,paste0(Destino,"TotalSummary.csv"))
-  
-  
+
   ######################################################################################################
   ## QC para informacion a nivel diario, hallan o no pasado por proceso de conversion a escala diaria.##
   ## Estaciones con informacion desagregada o un archivo por variable                                 ##
@@ -1190,7 +1225,6 @@ descript <- function(object){ #Funcion para descriptivas de las variables
   result=cbind(n,Min,Max,Media,Varianza,Desv.Est,Mediana,Coef.Var,Datos.NA,Porcentaje.NA)
 }
 SUMMARY<-function(dirFol,objeto,YStart,YEnd){
-
   dir.create(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/SUMMARY"),showWarnings=F)
   archivo=read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/",objeto,"_to.csv"),header=T)
   archivo=filter(archivo,year %in% c(YStart:YEnd))
@@ -1198,16 +1232,15 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
   row.names(d) <-c("n","Min","Max","Media","Varianza","Desv.Est","Mediana","CV %","NA","NA %")
   d=as.data.frame(d)
   
-  
   D=(d[10,])
   sta=colnames(D)
   D=unlist(D)
   
   D=data.frame(cbind(sta,D))
   colnames(D)=c("Station","NAs")
-
+  D$NAs=as.numeric(as.character(D$NAs))
   
-     gr=ggplot(D,aes((Station),NAs))+geom_bar(colour="black",stat="identity",fill="skyblue")+
+     gr= ggplot(D,aes(Station,NAs))+geom_bar(colour="black",stat="identity",fill="skyblue")+
      #scale_y_continuous(limits=c(0,100))+
      xlab("Stations") + ylab("% NA") +
      ggtitle(objeto)
@@ -1221,7 +1254,7 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
 
 #Grafico de todas las series por variable.
 # num=? es la variable a trabajar
-# 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
+# 1:"ESOL" ; 2:"RAIN" ; 3:"RHUM" ; 4:"TMAX" ; 5:"TMIN"
 PLOTSERIES<-function(dirFol,num){
   #num=3
   Var=num
@@ -1238,9 +1271,18 @@ PLOTSERIES<-function(dirFol,num){
   
   Date<-as.Date(as.character(paste0(var$year,"-",var$month,"-",var$day)))
   data=data.frame(Date,var[4:ncol(var)])
-  #names(data)
+  
+  # Lmin=min(data[-1],na.rm = T)
+  # Lmax=max(data[-1],na.rm = T)
+  # Line2 <- gvisLineChart(data, "Date",options=list(width=1500, height=700,title=variable,
+  #                                                  vAxes=paste("[{viewWindowMode:'explicit',viewWindow:{min:,",Lmin,", max:",Lmax,"}}]",sep = "")))
+  
   Line2 <- gvisLineChart(data, "Date",options=list(width=1500, height=700,title=variable,
-                                                   vAxes="[{viewWindowMode:'explicit'}]"))   
+                                                   vAxes="[{viewWindowMode:'explicit'}]"))
+  
+  
+  
+  
   plot(Line2)
 
 }
@@ -1254,7 +1296,8 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   
   year_min <- YStart;year_max <- YEnd
   origin <- paste0(year_min,"-1-1")
-  valmin <- 1.0;n_GPCA_iter <- 10
+  valmin <- 1.0;
+  n_GPCA_iter <- 10
   n_GPCA_iteration_residuals <- 10
   n_GPCA_iter_prec <- 20
   n_GPCA_iteration_residuals_prec <- 20
@@ -1271,13 +1314,11 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   
   #Verificar si las estaciones en los tres archivos son las mismas
   arch1<- names(tmax_1)[-(1:3)];arch2<- names(tmin_1)[-(1:3)];arch3<- names(precipitation)[-(1:3)]
+  l1=length(arch1);l2=length(arch2);l3=length(arch3)
   
-  compare=unique(c(unique(arch1==arch2),unique(arch2==arch3),unique(arch1==arch3)))
-  if(compare==TRUE){
+  if(l1==l2&l1==l3){
     print("Start process of filling gaps in Temperature")
-  }else {stop("There are different stations inside of files TMAX_to, TMIN_to and RAIN_to. 
-              Please check the 03_SERIES_DAILY_With_Holes folder")}
-  
+
   #Eleccion de las estaciones con las que se trabajara  
   if(length(DontUse)>=1){
     stationUSE=station[c(1:length(station))]
@@ -1386,6 +1427,9 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
     
   }
   print("Please check 04_SERIES_DAILY_OK folder")
+  
+  }else {stop("There are different stations inside of files TMAX_to, TMIN_to and RAIN_to. 
+              Please check the 03_SERIES_DAILY_With_Holes folder")}
 }
 
 ##Generator RHUM
@@ -1553,6 +1597,7 @@ GEN_ESOL<-function(dirFol){
       modif[NAs]="SI"
       firstSta <- firstSta[complete.cases(firstSta),] #TO QUIT Data missing
       
+      firstSta=firstSta[,-c(1,3)]# Quitando variables despues de revicion de correla
       attach(firstSta);names(firstSta)
       
       #######################RANDOM FOREST######################
@@ -1560,6 +1605,7 @@ GEN_ESOL<-function(dirFol){
       
       rf     <- randomForest(ESOL_ORIG ~ ., data=firstSta, ntree=800,importance=TRUE,localImp=TRUE,na.action=na.omit) #*
       valPredic <- predict(rf, newdata=DataNAs[-5]) #*
+      
       
       vec=statDat[[i]][,8]
       vec[NAs]=valPredic
