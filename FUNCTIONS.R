@@ -15,8 +15,9 @@ FOLDERS <-function(dirFol){
 
 #Contro de calidad horario
 QCHOURLY <- function(dirFol,Dup=NULL){
+  
   if(length(Dup)==0) {Dup=0
-  }
+          }
     print("Wait a moment please...")
   
   # inicializacion de indicadores reporte
@@ -33,9 +34,9 @@ QCHOURLY <- function(dirFol,Dup=NULL){
   
   Data.all.files=lapply(paste0(Filesroutes,FilesNames),function(x){read.delim(x,sep="\t",header=F,col.names=c("Date", "Hour","Value"))})
   #Data.all.files=lapply(paste0(Filesroutes,FilesNames),function(x){print(x);return(read.table(x,sep="\t",header=T,blank.lines.skip=TRUE))})
-  #read.table("//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Santander//SERIES_ORIGINAL/HOURLY/28025120_WAM2_ESOL.txt",sep="\t",header=T,blank.lines.skip=TRUE)
+  
   names(Data.all.files)=nom.files
-  #lapply(Data.all.files, summary)
+  
   # Deteccion de las variables
   VAReasy=grep("TMAX|TMIN|RHUM|WAM2", nom.files)
   VARaccu=grep("RAIN|MJM2|CCM2", nom.files)
@@ -86,22 +87,11 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       Data.all.files.OK2=Data.all.files.OK[[i]]$Date>=as.Date(filmin)&Data.all.files.OK[[i]]$Date<=as.Date(filmax)
       Data.all.files.OK[[i]]=Data.all.files.OK[[i]][Data.all.files.OK2,]
       
-      
-      # ok1=Data.all.files.OK[[i]]
-      # head(ok1,25)
       #Conversion de horas
       TEMPhour=Data.all.files[[i]]$Hour
       Data.all.files.OK[[i]]$Hour=gsub("a.m.", "AM", Data.all.files.OK[[i]]$Hour)
       Data.all.files.OK[[i]]$Hour=gsub("p.m.", "PM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("a,m,", "AM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("p,m,", "PM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("a", "AM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("p", "PM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("AM", "AM", Data.all.files.OK[[i]]$Hour)
-      # Data.all.files.OK[[i]]$Hour=gsub("PM", "PM", Data.all.files.OK[[i]]$Hour)
-      #ok2=Data.all.files.OK[[i]]
-      #head(ok2,25)
-      #Data.all.files.OK[[i]]=ok2
+      
       
       #Condicion para identificar si la hora tiene segundos
       Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")[2]
@@ -111,12 +101,9 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       
       Data.all.files.OK[[i]]$Hour=times(TEMPhour)
       
-      #ok3=Data.all.files.OK[[i]]
-      #head(ok3,25)
       #Ordeno los datos cronologicamente
       Data.all.files.OK[[i]]=Data.all.files.OK[[i]][order(Data.all.files.OK[[i]]$Date,Data.all.files.OK[[i]]$Hour),]
-      # okkk=Data.all.files.OK[[i]]
-      # head(okkk,25)
+      
       # Detectar duplicados de un dia con igual hora
       HOURDATE=strptime(paste0(Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]]$Hour), "%Y-%m-%d %H:%M:%S")
       DUP=duplicated(HOURDATE)
@@ -136,13 +123,13 @@ QCHOURLY <- function(dirFol,Dup=NULL){
         Data.all.files.OK[[i]]=
           dd=aggregate(Data.all.files.OK[[i]],by=list(Data.all.files.OK[[i]]$Hour,Data.all.files.OK[[i]]$Date),median)[-c(1,2)]
       }
-      #head(dd,25)
+     
       # Calculo del intervalo de tiempo entre registros
       Data.all.files.OK[[i]]["DIFF"]=NA #Se crea una columna "DIFF" con NA's
       HOURDATE=strptime(paste(Data.all.files.OK[[i]]$Date, Data.all.files.OK[[i]]$Hour), "%Y-%m-%d %H:%M") 
       Decal=c(HOURDATE[1],HOURDATE[-length(HOURDATE)])
       Data.all.files.OK[[i]]$DIFF=as.numeric(difftime(HOURDATE,Decal,units="mins"))# Las diferencias son minutos
-     # head(Data.all.files.OK[[i]],25)
+     
       # Al hacer la diferencia entre el tiempo t_i+1 menos t_i, sabre cuantos minutos pasaron para llegar al registro
       # i+1, pero no hay registro antes de i por lo que no habra intervalo de tiempo para dicho registro
       # En esta parte del codigo lo que se hace es asignar la mediana de tiempo observada en el dia.
@@ -154,14 +141,13 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       #Mediana de los tiempos entre registros por dia
       MEDIANES=aggregate(Data.all.files.OK[[i]]$DIFF~Data.all.files.OK[[i]]$Date,Data.all.files.OK[[i]],median)
       Data.all.files.OK[[i]]$DIFF[PREMJOUR]=MEDIANES[,2]
-      #View(Data.all.files.OK[[i]])
       
       ###Para encontrar la cantidad de datos repetidos consecutivos en un dia
       ###Solo si los registros se hicieron cada 30 minutos o mas    
       if(Dup==1){  if(median(Data.all.files.OK[[i]]$DIFF,na.rm = T)>=30) {
                 
                   Data.all.files.OK2=Data.all.files.OK[[i]]
-                  #head(Data.all.files.OK2,74)
+                  
                   var=substring(nom.files[i],nchar(nom.files[i])-3,nchar(nom.files[i]))
                   if(var=="RAIN"){
                     posiZero=(which(Data.all.files.OK2[,3]==0))#buscar valores menores iguales a 0
@@ -227,16 +213,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
             Hmax=times(strftime(strptime("4:30 AM","%I:%M %p" ),"%H:%M:00"))
             Noche=Data.all.files.OK[[IND]][(Data.all.files.OK[[IND]]$Hour>Hmin)|(Data.all.files.OK[[IND]]$Hour<Hmax),] 
             Noche2=na.omit(Noche)
-            #           maxi=function(x){
-            #             serie=na.omit(x)
-            #             max=max(serie)
-            #             return(max)
-            #           }
-            # PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
             
-            #           if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
-            #             ProbCohernciaTEMP=TRUE
-            #             print(paste0("Problem of time inconsistency in the serie: ",nom.files[[IND]]))}
             if(dim(Noche2)[1]!=0){
               ProbCohernciaTEMP=TRUE
               print(paste0("Problem of time inconsistency in the serie: !!",nom.files[[IND]]))}
@@ -254,7 +231,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
         Tabla.fin=as.data.frame(resul,row.names=c("Datos","Erroneos","% Erroneos","Incoherencia temporal", "Problema UND","Duplicados"))
         resul1[[j]]=Tabla.fin
         nom.Summary[j]=nom.files[IND]
-        #write.csv(Tabla.fin,paste0(Filesroutesdestino,nom.files[IND],"_Summary.csv"))
+        
         write.table(Data.all.files.OK[[IND]],paste0(Filesroutesdestino,nom.files[IND],"_QC1ready.txt"), sep="\t",row.names = F)
       }
       close(pb)
@@ -309,15 +286,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
           Hmax=times(strftime(strptime("4:30 AM","%I:%M %p"),"%H:%M:00"))
           Noche=Data.all.files.OK[[IND]][(Data.all.files.OK[[IND]]$Hour>Hmin)|(Data.all.files.OK[[IND]]$Hour<Hmax),] 
           Noche2=na.omit(Noche)
-          #         maxi=function(x){
-          #           serie=na.omit(x)
-          #           max=max(serie)
-          #           return(max)
-          #         }
-          #         PROBLEM=aggregate(Noche$Value~Noche$Date, Noche, maxi)
-          #         if(dim(PROBLEM[PROBLEM[,2]>0,])[1]!=0){
-          #           ProbCohernciaTEMP=TRUE
-          #           print(paste0("Warning:  time inconsistency in :",nom.files[[IND]]))}
+         
           if(dim(Noche2)[1]!=0){
             ProbCohernciaTEMP=TRUE
             print(paste0("Problem of time inconsistency in the serie: !!",nom.files[[IND]]))}
@@ -362,7 +331,6 @@ QCHOURLY <- function(dirFol,Dup=NULL){
         Tabla.fin=as.data.frame(resul,row.names=c("Data","Error","% Error","Incoherencia temporal", "Problema UND", "Duplicados"))
         resul2[[j]]=Tabla.fin
         nom.Summary2[j]=nom.files[IND]
-        #write.csv(Tabla.fin,paste0(Filesroutesdestino,nom.files[IND],"_Summary.csv"))
         
         if(modif==1){
           varCCM2=paste0(substring(nom.files[IND],first=1,nchar(nom.files[IND])-9),"CCM2_ESOL")
@@ -385,7 +353,6 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       stop(paste0("Check names on ",dirFol,"/SERIES_ORIGINAL/HOURLY/"))
     
   }
-  
   
   ##################### FIN ################
 }
@@ -1051,7 +1018,6 @@ INPUTS <- function(dirFol){
   print("Wait a moment please...")
   
   rutOrigen=paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/")
-  #rutOrigen=paste0(dirFol,"/PROCESS/04_SERIES_DAILY_OK/")
   
   files <-list.files(rutOrigen,pattern="\\.txt$")
   #files <-list.files(rutOrigen,pattern="\\_FUS.txt$")
@@ -1241,7 +1207,6 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
   D$NAs=as.numeric(as.character(D$NAs))
   
      gr= ggplot(D,aes(Station,NAs))+geom_bar(colour="black",stat="identity",fill="skyblue")+
-     #scale_y_continuous(limits=c(0,100))+
      xlab("Stations") + ylab("% NA") +
      ggtitle(objeto)
     
@@ -1252,42 +1217,36 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
   
 }
 
-#Grafico de todas las series por variable.
+#Grafico html de todas las series por variable.
 # num=? es la variable a trabajar
 # 1:"ESOL" ; 2:"RAIN" ; 3:"RHUM" ; 4:"TMAX" ; 5:"TMIN"
 PLOTSERIES<-function(dirFol,num){
-  #num=3
+  
   Var=num
-  dirFol<-paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes")
-  rutOrigen=paste0(dirFol)
+  rutOrigen<-paste0(dirFol,"PROCESS/03_SERIES_DAILY_With_Holes/")
   files <-list.files(rutOrigen,pattern="\\.csv$");files <-files[grep("_to",files)]
-  
   data=lapply(paste0(rutOrigen,"/",files),function(x){read.table(x,header=T,sep=",")})
-  var=(data[[Var]])
   
-  variable=substring(files[Var],1,nchar(files[Var])-7)
+  var=(data[[Var]])
+  variable=substring(files[Var],1,nchar(files[Var])-7);    
   print(variable)
-  Cest=dim(var)[2]-3#cantidad de estaciones
+  print("Please, wait a moment...")
   
   Date<-as.Date(as.character(paste0(var$year,"-",var$month,"-",var$day)))
   data=data.frame(Date,var[4:ncol(var)])
+  datos=( data %>% gather(Station,n,-Date))
   
-  # Lmin=min(data[-1],na.rm = T)
-  # Lmax=max(data[-1],na.rm = T)
-  # Line2 <- gvisLineChart(data, "Date",options=list(width=1500, height=700,title=variable,
-  #                                                  vAxes=paste("[{viewWindowMode:'explicit',viewWindow:{min:,",Lmin,", max:",Lmax,"}}]",sep = "")))
+  Plot <- nPlot(n ~ Date, data = datos,group = "Station",type = "lineChart")
+  Plot$xAxis(tickFormat =   "#!function(d) {return d3.time.format('%Y-%m-%d')(new Date(d*1000*3600*24));}
+                !#",rotateLabels = -90,   axisLabel = "Date")
   
-  Line2 <- gvisLineChart(data, "Date",options=list(width=1500, height=700,title=variable,
-                                                   vAxes="[{viewWindowMode:'explicit'}]"))
+  Plot$yAxis(axisLabel = variable, width = 62)
+  Plot$save(paste0(rutOrigen,variable,'.html'), standalone = TRUE)
+  print(paste0("Check folder to view graphic ",variable,".html --> ",rutOrigen))
   
-  
-  
-  
-  plot(Line2)
-
 }
 
-#################################################Imputacion de tmax tmin y rain
+################h#################################Imputacion de tmax tmin y rain
 GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   lag=2
   print("Wait a moment please...")
@@ -1639,8 +1598,6 @@ END_GRAPS<-function(dirFol){
       STATION=substring(nom.files[i],1,nchar(nom.files[i])-6)
       ESOLFUS=data.frame(fechas,DATAFUS[[i]][9],DATAFUS[[i]][10]); colnames(ESOLFUS)=c("Dates","Value","Modif")
       write.table(ESOLFUS,paste0(pat,STATION,"_ESOL_FUS.txt"), sep="\t",row.names=F)
-      #ESOLEST=data.frame(fechas,DATAFUS[[i]][9]); colnames(ESOLEST)=c("Dates","Value")
-      #write.table(ESOLEST,paste0(pat,STATION,"_ESOL_EST.txt"), sep="\t", row.names=F)
     }
   }
   #####################Graficando las series FUS

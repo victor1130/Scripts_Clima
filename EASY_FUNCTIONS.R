@@ -4,8 +4,8 @@
 #This script is free: you can redistribute it and/or modify
 #Autor: VICTOR HUGO PATIÑO BRAVO
 #v.h.patino@cgiar.org
-#Agosto, 2015
-#Version V.02.15
+#Marzo, 2016
+#Version V.03.16
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
@@ -22,18 +22,19 @@ if(require(tcltk)==FALSE){install.packages("tcltk")}
 if(require(sirad)==FALSE){install.packages("sirad")}
 if(require(tidyr)==FALSE){install.packages("tidyr")}
 if(require(dplyr)==FALSE){install.packages("dplyr")}
-if(require(googleVis)==FALSE){install.packages("googleVis")}
+if(require(base64enc)==FALSE){install.packages("base64enc")}
+if(require(rCharts)==FALSE){install.packages("rCharts")}
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "C:/Users/vhpatino/Desktop/TEST"
+dirFol    <- "C:/Users/vhpatino/Desktop/TEMPORAL_TEST/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 # Years of analisys
 
 # Para colocar años a procesar... 4 digitos
-YStart    <-  2005#Star Year for analisys
-YEnd      <-  2015#End  Year for analisys
+YStart    <-  2007#Star Year for analisys
+YEnd      <-  2013#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -72,13 +73,13 @@ QCDAILY(dirFol)
 # Inputs
 INPUTS(dirFol)
 
-# Graficos descriptivos
-# num=? es la variable a trabajar
+# Descriptive Graphs
+# num=? --> variable to work
 # 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
-PLOTSERIES(dirFol,num=3)
+PLOTSERIES(dirFol,num=5)
 
 #Graphics after QC
-GRAPHICS()
+GRAPHICS()### revisar estos graficos..algunos ya no son tan utiles
 
 #Summary for variable
 
@@ -97,8 +98,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-DontUse=c(3,6,7,15,12,1)
-GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
+#DontUse=c(2,3)
+GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
