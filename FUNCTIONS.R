@@ -92,9 +92,8 @@ QCHOURLY <- function(dirFol,Dup=NULL){
       Data.all.files.OK[[i]]$Hour=gsub("a.m.", "AM", Data.all.files.OK[[i]]$Hour)
       Data.all.files.OK[[i]]$Hour=gsub("p.m.", "PM", Data.all.files.OK[[i]]$Hour)
       
-      
       #Condicion para identificar si la hora tiene segundos
-      Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")[2]
+      Cond=strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p",tz="GMT"),"%H:%M:%S")[2]
       #Si Cond==NA no tiene segundos
       if(is.na(Cond)){TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M %p"),"%H:%M:%S")##SI formato original hora es 12:35 am/pm
       }else{TEMPhour<- strftime(strptime(Data.all.files.OK[[i]]$Hour,"%I:%M:%S %p"),"%H:%M:%S")}##SI formato original hora es 12:35:59 am/pm
@@ -677,10 +676,11 @@ QCDAILY <- function(dirFol){
   # Tabla de valores de referencia
   REF=read.csv("Val_REF_QCDaily.csv", header=T, row.names=1)
   
-  summary=list()
+  summary=vector("list", length(Data.all.files))
   filmin=paste0(YStart,"-01-01")
   filmax=paste0(YEnd,"-12-31")
   #si no hay datos que cumplan con los valores de REF falla el ciclo
+  #rejected=list()
   
   for(i in 1:length(Data.all.files)){
     
@@ -703,6 +703,7 @@ QCDAILY <- function(dirFol){
     if(dim(Data.all.filesNAFree[[i]])[1]<30){   #30 es un valor arbitrario para rechazar una estacion con menos de ese numero de dias de info
       
       print(paste0("The station ",nom.files[i]," has low or null information during the period of interest, therefore, it cannot be included into the following process"))
+      #rejected[[i]]=i
       next
     }
     # Deteccion de duplicados con valores distintos
@@ -772,16 +773,17 @@ QCDAILY <- function(dirFol){
     
     # Detecar valores fuera de rango
     Vmax=REF[,VAR][1];Vmin=REF[,VAR][2]
-###########################################################%#$%$%^$%&%^&^&%^&%^&%&%^&%^&    
-      
+
     Error=which(Data.all.filesNAFree[[i]]$Value<Vmin | Data.all.filesNAFree[[i]]$Value>Vmax)
     Bonnes1=Data.all.filesNAFree[[i]][Error,]#Para guardar
     if(dim(Bonnes1)[1]>0){
     Data.all.filesNAFree[[i]][Error,]$Value=NA
     }
     
+    #de nuevo se busca filtrar si hay muy pocos datos segun los valores fuera de rango descartados 
     if(sum(!is.na(Data.all.filesNAFree[[i]]$Value))<=30){
       print(paste0("The station ",nom.files[i],", do not have data for the period of interest."))
+      #rejected[[i]]=i
       next
     }
     # Detectar valores atipicos...para rain no se tienen encuenta valores cero para calculo de la desviacion y promedio, sin tener en cuenta los descartados anteriormente
@@ -857,7 +859,7 @@ QCDAILY <- function(dirFol){
         }
  
     ggsave(paste0(Destino,nom.files[i], "_Plotserie.png"), width=25, height=15,units = "cm")
-    
+
 
   }
  
@@ -1209,11 +1211,34 @@ SUMMARY<-function(dirFol,objeto,YStart,YEnd){
      gr= ggplot(D,aes(Station,NAs))+geom_bar(colour="black",stat="identity",fill="skyblue")+
      xlab("Stations") + ylab("% NA") +
      ggtitle(objeto)
-    
+
+###Generando grafico de disponibilidad temporal      
+     fecha=as.Date(paste0(archivo$year,"-",archivo$month,"-",archivo$day))
+     
+     #cantidad y nombre de estaciones
+     n=dim(archivo)[2]-3
+     stat=names(archivo[,-c(1:3)])
+     
+     for(i in 1:n){
+       archivo[,3+i]=replace(archivo[,3+i],!is.na(archivo[,3+i]),stat[i])
+     }
+     
+     compare=data.frame(fecha,archivo[,-c(1:3)])
+     datoS=( compare %>% gather(Station,n,-fecha))
+     
+     plot1=ggplot(data=datoS,aes(x=fecha, y=n, colour=Station)) + geom_line(show.legend = FALSE,size=1.25) + 
+       labs(title = paste0("Available Data, ",objeto),y='Stations',x='Date')
+     plot=plot1+theme_bw() 
+     
+     allplot=grid.arrange(gr, plot, ncol=1)
+     allplot
+     ggsave(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/SUMMARY/Summary_",objeto,".png"),plot = allplot)
+     
   write.csv(d,paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/SUMMARY/",objeto,"_",YStart,"-",YEnd,"_Summary.csv"))
   
-  lista=list(gr,d)
+  lista=list(d)
   return(lista)
+  
   
 }
 

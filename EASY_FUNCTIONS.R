@@ -24,17 +24,19 @@ if(require(tidyr)==FALSE){install.packages("tidyr")}
 if(require(dplyr)==FALSE){install.packages("dplyr")}
 if(require(base64enc)==FALSE){install.packages("base64enc")}
 if(require(rCharts)==FALSE){install.packages("rCharts")}
+if(require(gridExtra)==FALSE){install.packages("gridExtra")}
+
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "C:/Users/vhpatino/Desktop/TEMPORAL_TEST/"
+dirFol    <- "//dapadfs/workspace_cluster_8/AEPS/ARGENTINA_2015/CLIMA/PROCESAMIENTO_CLIMA/WITHOUT_SBRI/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 # Years of analisys
 
 # Para colocar años a procesar... 4 digitos
-YStart    <-  2007#Star Year for analisys
-YEnd      <-  2013#End  Year for analisys
+YStart    <-  2006#Star Year for analisys
+YEnd      <-  2014#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -98,7 +100,7 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-#DontUse=c(2,3)
+#DontUse=c(1,3,5)
 GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
