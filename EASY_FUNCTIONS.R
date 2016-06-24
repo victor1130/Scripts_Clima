@@ -14,7 +14,7 @@
 if(require(ggplot2)==FALSE){install.packages("ggplot2")} 
 if(require(rpart)==FALSE){ install.packages("rpart")}
 if(require(RMAWGEN)==FALSE){install.packages("RMAWGEN") } 
-if(require(chron)==FALSE){install.packages("chron")}
+#if(require(chron)==FALSE){install.packages("chron")}
 if(require(randomForest)==FALSE){install.packages("randomForest")}
 if(require(utils)==FALSE){install.packages("utils")}
 if(require(stringr)==FALSE){install.packages("stringr")}
@@ -26,17 +26,17 @@ if(require(base64enc)==FALSE){install.packages("base64enc")}
 if(require(rCharts)==FALSE){install.packages("rCharts")}
 if(require(gridExtra)==FALSE){install.packages("gridExtra")}
 
-
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_8/AEPS/ARGENTINA_2015/CLIMA/PROCESAMIENTO_CLIMA/WITHOUT_SBRI/"
+dirFol    <- "C:/Users/vhpatino/Desktop/Arandu/"
+#dirFol<-"C:/Users/vhpatino/Desktop/data_test/ambalema/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 # Years of analisys
 
 # Para colocar años a procesar... 4 digitos
-YStart    <-  2006#Star Year for analisys
-YEnd      <-  2014#End  Year for analisys
+YStart    <-  2013#Star Year for analisys
+YEnd      <-  2016#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -79,12 +79,14 @@ INPUTS(dirFol)
 # num=? --> variable to work
 # 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
 PLOTSERIES(dirFol,num=5)
+# debo corregir que sólo salgan los años de interes
 
 #Graphics after QC
 GRAPHICS()### revisar estos graficos..algunos ya no son tan utiles
 
 #Summary for variable
 
+#revisar el grafico de lines, debe tener discontinuidad en donde no hay datos
 SUMMARY(dirFol,"TMAX",YStart,YEnd)
 SUMMARY(dirFol,"TMIN",YStart,YEnd)
 SUMMARY(dirFol,"RAIN",YStart,YEnd)
@@ -100,8 +102,8 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-#DontUse=c(1,3,5)
-GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
+DontUse=c(1,4,5)
+GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 #length(DontUse)
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
