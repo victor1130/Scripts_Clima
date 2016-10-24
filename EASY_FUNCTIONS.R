@@ -27,15 +27,15 @@ if(require(rCharts)==FALSE){install.packages("rCharts")}
 if(require(gridExtra)==FALSE){install.packages("gridExtra")}
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "C:/Users/vhpatino/Desktop/Arandu/"
+dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Casanare/"
 #dirFol<-"C:/Users/vhpatino/Desktop/data_test/ambalema/"
 setwd(dirFol)
 
 GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
-# Years of analisys
 
+# Years of analisys
 # Para colocar años a procesar... 4 digitos
-YStart    <-  2013#Star Year for analisys
+YStart    <-  2006#Star Year for analisys
 YEnd      <-  2016#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
@@ -76,22 +76,24 @@ QCDAILY(dirFol)
 INPUTS(dirFol)
 
 # Descriptive Graphs
-# num=? --> variable to work
-# 1:"ESOL" 2:"RAIN" 3:"RHUM" 4:"TMAX" 5:"TMIN"
-PLOTSERIES(dirFol,num=5)
+# vari=? es la variable a trabajar
+# "ESOL" ; "RAIN" ;"RHUM" ; "TMAX" ; "TMIN"
+#PLOTSERIES(dirFol,vari="TMAX")
 # debo corregir que sólo salgan los años de interes
 
 #Graphics after QC
 GRAPHICS()### revisar estos graficos..algunos ya no son tan utiles
 
-#Summary for variable
-
-#revisar el grafico de lines, debe tener discontinuidad en donde no hay datos
+#Summary by variable
 SUMMARY(dirFol,"TMAX",YStart,YEnd)
 SUMMARY(dirFol,"TMIN",YStart,YEnd)
 SUMMARY(dirFol,"RAIN",YStart,YEnd)
 SUMMARY(dirFol,"ESOL",YStart,YEnd)
 SUMMARY(dirFol,"RHUM",YStart,YEnd)
+
+#Summary by especific season. You need to have the months between which the season is given
+mStart=1;mEnd=11
+SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 
 #Generate Data: Precipitation, Temperature max and min.
 
@@ -102,9 +104,11 @@ SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
-DontUse=c(1,4,5)
+#DontUse=c(8,25,24,28,34)
+DontUse=c(9,10)
+#DontUse=c(2,4,5,24,25,32,34)
 GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
-#length(DontUse)
+
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
 GEN_ESOL(dirFol)
