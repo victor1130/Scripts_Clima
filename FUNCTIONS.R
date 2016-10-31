@@ -724,6 +724,12 @@ QCDAILY <- function(dirFol){
     # Quit NA 
     Data.all.filesNAFree[[i]]=Data.all.files[[i]][which(!is.na(Data.all.files[[i]]$Value)),]
    
+    #si no hay datos en el archivo original, esta condicion hace que el ciclo salte a la siguiente "i"
+    if(dim(Data.all.filesNAFree[[i]])[1]==0){
+      print(paste0("The station ",nom.files[i]," have null information, it cannot be included into the following process"))
+      next
+    }
+    
     # Read date
     if(length(grep("TRUE",i==TypeOrig))==1){
       DateOK=as.Date(as.character(Data.all.filesNAFree[[i]]$Date), "%Y-%m-%d")  
@@ -1294,7 +1300,7 @@ SUMMARY <-function(dirFol,objeto,YStart,YEnd){
   D$NAs=as.numeric(as.character(D$NAs))
   
      gr= ggplot(D,aes(Station,NAs))+geom_bar(colour="black",stat="identity",fill="skyblue")+
-       labs(x='Stations',y="% NA")+ ggtitle(paste0("Available Data, ",objeto))+
+       labs(x='Stations',y="% NA")+ ggtitle(paste0("Mising Data, ",objeto))+
        theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ###Generando grafico de disponibilidad temporal      

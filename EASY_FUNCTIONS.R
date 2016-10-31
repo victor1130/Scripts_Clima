@@ -11,10 +11,11 @@
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 # PACKAGES
-if(require(ggplot2)==FALSE){install.packages("ggplot2")} 
+
+if(require(ggplot2)==FALSE){install.packages("ggplot2")}
 if(require(rpart)==FALSE){ install.packages("rpart")}
 if(require(RMAWGEN)==FALSE){install.packages("RMAWGEN") } 
-#if(require(chron)==FALSE){install.packages("chron")}
+if(require(chron)==FALSE){install.packages("chron")}
 if(require(randomForest)==FALSE){install.packages("randomForest")}
 if(require(utils)==FALSE){install.packages("utils")}
 if(require(stringr)==FALSE){install.packages("stringr")}
@@ -27,7 +28,7 @@ if(require(rCharts)==FALSE){install.packages("rCharts")}
 if(require(gridExtra)==FALSE){install.packages("gridExtra")}
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/Casanare/"
+dirFol    <- "//dapadfs/workspace_cluster_8/AEPS/ARGENTINA_2015/CLIMA/ESTACIONES CLIMA/PROCESAR/"
 #dirFol<-"C:/Users/vhpatino/Desktop/data_test/ambalema/"
 setwd(dirFol)
 
@@ -36,7 +37,7 @@ GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 # Years of analisys
 # Para colocar años a procesar... 4 digitos
 YStart    <-  2006#Star Year for analisys
-YEnd      <-  2016#End  Year for analisys
+YEnd      <-  2013#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -92,7 +93,7 @@ SUMMARY(dirFol,"ESOL",YStart,YEnd)
 SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #Summary by especific season. You need to have the months between which the season is given
-mStart=1;mEnd=11
+mStart=8;mEnd=3
 SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 
 #Generate Data: Precipitation, Temperature max and min.
@@ -105,8 +106,9 @@ SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
 #DontUse=c(8,25,24,28,34)
-DontUse=c(9,10)
+DontUse=c(1:11,13,16)
 #DontUse=c(2,4,5,24,25,32,34)
+YEnd=2013
 GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 
 #Relative humidity and Solar energy
