@@ -4,8 +4,8 @@
 #This script is free: you can redistribute it and/or modify
 #Autor: VICTOR HUGO PATIÑO BRAVO
 #v.h.patino@cgiar.org
-#Marzo, 2016
-#Version V.03.16
+#October, 2016
+#Version V.11.16
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
@@ -17,18 +17,18 @@ if(require(rpart)==FALSE){ install.packages("rpart")}
 if(require(RMAWGEN)==FALSE){install.packages("RMAWGEN") } 
 if(require(chron)==FALSE){install.packages("chron")}
 if(require(randomForest)==FALSE){install.packages("randomForest")}
-if(require(utils)==FALSE){install.packages("utils")}
+if(require(utils)==FALSE){install.packages("utility")}#**
 if(require(stringr)==FALSE){install.packages("stringr")}
-if(require(tcltk)==FALSE){install.packages("tcltk")}
+if(require(tcltk)==FALSE){install.packages("tcltk2")}#**
 if(require(sirad)==FALSE){install.packages("sirad")}
 if(require(tidyr)==FALSE){install.packages("tidyr")}
 if(require(dplyr)==FALSE){install.packages("dplyr")}
 if(require(base64enc)==FALSE){install.packages("base64enc")}
-if(require(rCharts)==FALSE){install.packages("rCharts")}
+#if(require(rCharts)==FALSE){install.packages("rCharts")}
 if(require(gridExtra)==FALSE){install.packages("gridExtra")}
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_8/AEPS/ARGENTINA_2015/CLIMA/ESTACIONES CLIMA/PROCESAR/"
+dirFol    <- "C:/Users/vhpatino/Desktop/EJEMPLO_CLIMA_TALLER/"
 #dirFol<-"C:/Users/vhpatino/Desktop/data_test/ambalema/"
 setwd(dirFol)
 
@@ -37,7 +37,7 @@ GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 # Years of analisys
 # Para colocar años a procesar... 4 digitos
 YStart    <-  2006#Star Year for analisys
-YEnd      <-  2013#End  Year for analisys
+YEnd      <-  2016#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
                                   ##     ## ##       ##    ##   ##  ###   ## 
@@ -93,7 +93,7 @@ SUMMARY(dirFol,"ESOL",YStart,YEnd)
 SUMMARY(dirFol,"RHUM",YStart,YEnd)
 
 #Summary by especific season. You need to have the months between which the season is given
-mStart=8;mEnd=3
+mStart=11;mEnd=7
 SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 
 #Generate Data: Precipitation, Temperature max and min.
@@ -107,8 +107,7 @@ SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 #eg: 
 #DontUse=c(8,25,24,28,34)
 DontUse=c(1:11,13,16)
-#DontUse=c(2,4,5,24,25,32,34)
-YEnd=2013
+
 GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
 
 #Relative humidity and Solar energy
