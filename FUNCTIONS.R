@@ -11,7 +11,7 @@ FOLDERS <-function(dirFol){
   dir.create(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes"),showWarnings=F)
   dir.create(paste0(dirFol,"/PROCESS/04_SERIES_DAILY_OK"),showWarnings=F)
   print(paste0("Folders created in ",dirFol),print.gap = 10)
-  }
+}
 
 #Contro de calidad horario
 QCHOURLY <- function(dirFol,Dup=NULL){
@@ -69,7 +69,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
      Sys.sleep(0.1)
      setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
 
-      Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  ###
+      Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  #Garantiza trabajar con numeros
       ProbDUP=FALSE
       
       dataFech=Data.all.files.OK[[i]]$Date
@@ -113,6 +113,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
         ProbDUP=TRUE
         DUPcsv=HOURDATE[which(DUP==TRUE)]
         
+        #Si hay mas de 30 horas consecutivos iguales se genera la alerta
         if(length(DUPcsv)>=30){
         print(paste0("Warning: There is a problem with duplicated hours in the same day in: ",nom.files[i]," but this problem was solved"))
             if(Dup==1){
