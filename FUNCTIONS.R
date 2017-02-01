@@ -34,7 +34,7 @@ QCHOURLY <- function(dirFol,Dup=NULL){
   nom.files=substring(FilesNames,1,nchar(FilesNames)-4)
   
   Data.all.files=lapply(paste0(Filesroutes,FilesNames),function(x){read.delim(x,sep="\t",header=F,col.names=c("Date", "Hour","Value"),skip = 1)})
-  #Data.all.files=lapply(paste0(Filesroutes,FilesNames),function(x){print(x);return(read.table(x,sep="\t",header=T,blank.lines.skip=TRUE))})
+  Data.all.files=lapply(paste0(Filesroutes,FilesNames),function(x){print(x);return(read.table(x,sep="\t",header=T,blank.lines.skip=TRUE))})
   
   names(Data.all.files)=nom.files
   
