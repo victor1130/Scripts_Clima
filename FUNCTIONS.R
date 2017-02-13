@@ -63,15 +63,16 @@ QCHOURLY <- function(dirFol,Dup=NULL){
     filmin=paste0(YStart,"-01-01")
     filmax=paste0(YEnd,"-12-31")
     
-    pb <- winProgressBar(title = "Progress bar - Step 1", min = 0,max = length(Data.all.files), width = 300)
-    
+    #pb <- winProgressBar(title = "Progress bar - Step 1", min = 0,max = length(Data.all.files), width = 300)
+    pb <-txtProgressBar(style = 3)
     for(i in seq_along(Data.all.files)){
      Sys.sleep(0.1)
-     setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
-
+     #setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
+      setTxtProgressBar(pb,i)
       Data.all.files.OK[[i]][,3]=as.numeric(as.character(Data.all.files.OK[[i]][,3]))  #Garantiza trabajar con numeros
       ProbDUP=FALSE
       
+   
       dataFech=Data.all.files.OK[[i]]$Date
       typeOrig=length(grep("-|/",dataFech))
       #Fit format date
@@ -186,12 +187,14 @@ QCHOURLY <- function(dirFol,Dup=NULL){
     resul1=list()
     nom.Summary=0
     if(length(VAReasy)!=0){
-      pb <- winProgressBar(title = "Progress bar - Step 2", min = 0,max = length(Data.all.files), width = 300)  
+      #pb <- winProgressBar(title = "Progress bar - Step 2", min = 0,max = length(Data.all.files), width = 300)  
+      pb <-txtProgressBar(style = 3)
       
       for (j in 1:length(VAReasy)){
         Sys.sleep(0.1)
-        setWinProgressBar(pb, j, title=paste( round(j/length(Data.all.files)*100, 0), "% done"))
-
+        #setWinProgressBar(pb, j, title=paste( round(j/length(Data.all.files)*100, 0), "% done"))
+        setTxtProgressBar(pb,i)  
+        
         modif=0;UNIT=NA
         ProbCohernciaTEMP=FALSE
         IND=VAReasy[j]
@@ -244,11 +247,13 @@ QCHOURLY <- function(dirFol,Dup=NULL){
     resul2=list()
     nom.Summary2=0
     if(length(VARaccu)!=0){
-      pb <- winProgressBar(title = "Progress bar - Step 3", min = 0,
-                           max = length(Data.all.files), width = 300)
+      #pb <- winProgressBar(title = "Progress bar - Step 3", min = 0,max = length(Data.all.files), width = 300)
+      pb <-txtProgressBar(style = 3)
+      
       for (j in 1:length(VARaccu)){
          Sys.sleep(0.1)
-         setWinProgressBar(pb, j, title=paste( round(j/length(Data.all.files)*100, 0), "% done"))
+         #setWinProgressBar(pb, j, title=paste( round(j/length(Data.all.files)*100, 0), "% done"))
+         setTxtProgressBar(pb,i)
         
         UNIT=NA
         ProbCohernciaTEMP=FALSE
@@ -373,12 +378,14 @@ CONVERT <- function(dirFol){
   summary=list()
   ###Debo corregir el ciclo, cuando no se puede obtener la conversion de un día 
   ###porque no quedaron datos en el archivo horario falla el proceso
-  pb <- winProgressBar(title = "Progress bar", min = 0,max = length(Data.all.files), width = 300) 
+  #pb <- winProgressBar(title = "Progress bar", min = 0,max = length(Data.all.files), width = 300) 
+  pb <-txtProgressBar(style = 3)
   
   for(i in 1:length(Data.all.files)){
     
     Sys.sleep(0.1)
-    setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
+    #setWinProgressBar(pb, i, title=paste( round(i/length(Data.all.files)*100, 0), "% done"))
+    setTxtProgressBar(pb,i)
     print(i)
     modif=0
     # Crear series de trabajo

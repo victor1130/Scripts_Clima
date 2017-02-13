@@ -28,7 +28,7 @@ if(require(base64enc)==FALSE){install.packages("base64enc")}
 if(require(gridExtra)==FALSE){install.packages("gridExtra")}
 
 # Work directory  :: #dirFol    <- "C:/Users/nameUser/Desktop/workspace/"
-dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_CLIMA_PROCESADO/ValledelCauca/MAIZ_VALLE/"
+dirFol    <- "//dapadfs/workspace_cluster_6/TRANSVERSAL_PROJECTS/MADR/COMPONENTE_2/CLIMA/SERIES_ORIGINALES/USAID_IDEAM_CENICAFE"
 #dirFol<-"C:/Users/vhpatino/Desktop/data_test/ambalema/"
 setwd(dirFol)
 
@@ -36,7 +36,7 @@ GRAPHICS  <- function(){source(paste0(dirFol,"/GRAPHICS.R"))}
 
 # Years of analisys
 # Para colocar años a procesar... 4 digitos
-YStart    <-  2012#Star Year for analisys
+YStart    <-  2000#Star Year for analisys
 YEnd      <-  2016#End  Year for analisys
 
                                   ########  ########  ######   #### ##    ## 
@@ -106,9 +106,9 @@ SUMStatxSeason(dirFol,YStart,YEnd,mStart,mEnd)
 #You can use DontUse vector for exclude positions of the stations that you don't will use
 #eg: 
 #DontUse=c(8,25,24,28,34)
-DontUse=c(3,5,10,11,12,13,16)
+#DontUse=c(3,5,10,11,12,13,16)
 
-GENERATOR_T_R(dirFol,YStart,YEnd,DontUse = DontUse)
+GENERATOR_T_R(dirFol,YStart,YEnd)#,DontUse = DontUse)
 
 #Relative humidity and Solar energy
 GEN_RHUM(dirFol)
