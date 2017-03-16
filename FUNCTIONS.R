@@ -1473,21 +1473,20 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   
   year_min <- YStart;year_max <- YEnd
   origin <- paste0(year_min,"-1-1")
-  valmin <- 1.0;
+  
   n_GPCA_iter <- 10
   n_GPCA_iteration_residuals <- 10
-  n_GPCA_iter_prec <- 20
-  n_GPCA_iteration_residuals_prec <- 20
   
   tmax  <- read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/TMAX_to.csv"), header = TRUE, sep = ",",  dec=".")
   tmin  <- read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/TMIN_to.csv"), header = TRUE, sep = ",",  dec=".")
   preci <- read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/RAIN_to.csv"), header = TRUE, sep = ",",  dec=".")
+  #preci <- read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/originales/RAIN_to.csv"), header = TRUE, sep = ",",  dec=".")
   
   tmax_1=subset(tmax,tmax$year>=year_min & tmax$year<=year_max)
   tmin_1=subset(tmin,tmin$year>=year_min & tmin$year<=year_max)
   precipitation=subset(preci,preci$year>=year_min & preci$year<=year_max)
   
-  station <- names(tmax_1)[-(1:3)]
+  station <- names(precipitation)[-(1:3)]
   
   #Verificar si las estaciones en los tres archivos son las mismas
   arch1<- names(tmax_1)[-(1:3)];arch2<- names(tmin_1)[-(1:3)];arch3<- names(precipitation)[-(1:3)]
@@ -1521,20 +1520,27 @@ GENERATOR_T_R<-function(dirFol,YStart,YEnd,DontUse=NULL){
   names(exogen_sim) <- cbind(paste(names(generation00_temp$output$Tx_gen),"_Tx",sep=""),paste(names(generation00_temp$output$Tn_gen),"_Tn",sep=""))
   exogen <- cbind(generation00_temp$input$Tx_mes,generation00_temp$input$Tn_mes)
   names(exogen) <- cbind(paste(names(generation00_temp$input$Tx_mes),"_Tx",sep=""),paste(names(generation00_temp$input$Tn_mes),"_Tn",sep=""))
-  head(generation00_temp$input$Tx_mes)
-  
+  #head(generation00_temp$input$Tx_mes)
+  #head(exogen)
   print("Start process of filling gaps in Precipitation") 
   # Precipitation Generator (temperture enters as exogenous variable)
   #fix(ComprehensivePrecipitationGenerator)
+  n_GPCA_iter_prec <- 20
+  n_GPCA_iteration_residuals_prec <-  20
+  valmin <- 0.5
+  
   generation00_prec <- ComprehensivePrecipitationGenerator(station=stationUSE,
                                                            prec_all=precipitation,
                                                            year_min=year_min,
                                                            year_max=year_max,
                                                            exogen=exogen,
                                                            exogen_sim=exogen_sim,
-                                                           p=lag,n_GPCA_iteration=n_GPCA_iter_prec,
+                                                           p=5,n_GPCA_iteration=n_GPCA_iter_prec,
                                                            n_GPCA_iteration_residuals=n_GPCA_iteration_residuals_prec,
-                                                           sample="monthly",valmin=1,extremes=TRUE,no_spline = T)
+                                                           sample="monthly",valmin=valmin,extremes=TRUE,no_spline = TRUE,
+                                                           activateVARselect = FALSE)
+
+  
   
   #-----------------------Gerar Arquivos--------------------------------------------- 
   prec_mes <- generation00_prec$prec_mes
