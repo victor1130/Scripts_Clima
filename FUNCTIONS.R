@@ -823,7 +823,7 @@ QCDAILY <- function(dirFol){
     if(VAR=="TMAX"|VAR=="TMIN"){
       
       x=Data.all.filesNAFree[[i]]$Value
-      #Estas líneas son para identificar variaciones de 10 grados en temp respecto
+      #Estas líneas son para identificar variaciones de 5 grados en temp respecto
       #a la media movil de los n valores anteriores
       n=8;y=0;pos=0
       
@@ -834,13 +834,12 @@ QCDAILY <- function(dirFol){
         y[j]=mean(x[j:(j+n-1)],na.rm = T)
         #con esta condicion comparo el promedio movil con el valor de la serie y lo descarto del siguiente promedio
         #evitando asi que lo infle.
-        if(!is.na(abs(x[n+j]-y[j])) & (abs(x[n+j]-y[j]))>=10){
+        if(!is.na(abs(x[n+j]-y[j])) & (abs(x[n+j]-y[j]))>=5){
             x[n+j]=NA
             pos[j]=n+j
           }
       }
       pos=as.vector(na.omit(pos[-1]))
-      
       #Con este pos y el vector de datos originales puedo guardar los datos anomalos si deseo
       Data.all.filesNAFree[[i]]$Value=x
       
@@ -1297,6 +1296,7 @@ SUMMARY <-function(dirFol,objeto,YStart,YEnd){
   #objeto="TMAX"
   archivo=read.csv(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/",objeto,"_to.csv"),header=T)
   archivo=filter(archivo,year %in% c(YStart:YEnd))
+  #head(archivo)
   d=sapply(archivo[-1:-3],descript)
   row.names(d) <-c("n","Min","Max","Media","Varianza","Desv.Est","Mediana","CV %","NA","NA %")
   d=as.data.frame(d)
@@ -1318,21 +1318,27 @@ SUMMARY <-function(dirFol,objeto,YStart,YEnd){
      fecha=as.Date(paste0(archivo$year,"-",archivo$month,"-",archivo$day))
      
      #cantidad y nombre de estaciones
+     #head(archivo)
      n=dim(archivo)[2]-3
      stat=names(archivo[,-c(1:3)])
-     
+     #summary(archivo[,3+i])
+     archivo2=matrix(NA,nrow = dim(archivo)[1],ncol = dim(archivo)[2])
      for(i in 1:n){
-       archivo[,3+i]=replace(archivo[,3+i],!is.na(archivo[,3+i]),stat[i])
+       
+       archivo2[,3+i]=replace(archivo[,3+i],!is.na(archivo[,3+i]),stat[i])
      }
-     
-    compare=data.frame(fecha,archivo[,-c(1:3)])
-    datoS=( compare %>% gather(Station,n,-fecha))
-     
-    datoS$type = factor(cumsum(c(0, as.numeric(diff(datoS$fecha) - 1))))
-    plot1=ggplot(data=datoS,aes(x=fecha, y=n, colour=Station)) + geom_line(show.legend = FALSE,size=1.25,aes(group=type)) + 
+    
+    compare=data.frame(fecha,archivo2[,-c(1:3)])
+    
+    names(compare)=c("fecha",stat)
+    datoS= compare %>% gather(Station,n,-fecha)
+    #head(datoS) 
+    datoS$type = as.character(factor(cumsum(c(0, as.numeric(diff(datoS$fecha) - 1)))))
+    
+    plot1=ggplot(data=datoS,aes(x=fecha,y=n,colour=Station)) + geom_point(show.legend = FALSE,size=1,aes(group=type)) + 
     labs(title = paste0("Available Data, ",objeto),y='Stations',x='Date')
     plot=plot1+theme_bw() 
-     
+    
     allplot=grid.arrange(gr, plot, ncol=1)
      
     ggsave(paste0(dirFol,"/PROCESS/03_SERIES_DAILY_With_Holes/SUMMARY/Summary_",objeto,"_",YStart,"-",YEnd,".png"),plot = allplot,width =14 ,height = 12,dpi = 500)
